@@ -1,0 +1,84 @@
+/* Subtle animation utilities for light and dark themes.
+   Focus on low-chroma motion and short durations to avoid eye strain. */
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  [class*="animate-"] {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Zoom */
+@keyframes zoom-in {
+  0% { transform: scale(0.96); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes zoom-out {
+  0% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Slide */
+@keyframes slide-up {
+  0% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes slide-down {
+  0% { transform: translateY(-12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Bounce (subtle overshoot) */
+@keyframes bounce-down {
+  0% { transform: translateY(-10px); opacity: 0; }
+  60% { transform: translateY(2px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes bounce-up {
+  0% { transform: translateY(10px); opacity: 0; }
+  60% { transform: translateY(-2px); opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Fade */
+@keyframes fade-in-subtle {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Pop (very subtle scale) */
+@keyframes pop {
+  0% { transform: scale(0.98); }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* Utility classes */
+.animate-zoom-in { animation: zoom-in 280ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+.animate-zoom-out { animation: zoom-out 220ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+
+.animate-slide-up { animation: slide-up 320ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+.animate-slide-down { animation: slide-down 320ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+
+.animate-bounce-down { animation: bounce-down 300ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+.animate-bounce-up { animation: bounce-up 300ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+
+.animate-fade-in-subtle { animation: fade-in-subtle 200ms ease-out both; }
+.animate-pop { animation: pop 240ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+
+/* Helpers for common UI patterns */
+.dropdown-enter { animation: bounce-down 260ms cubic-bezier(0.2, 0.65, 0.3, 1) both; transform-origin: top right; }
+.dropdown-exit { animation: zoom-out 180ms ease-out both; transform-origin: top right; }
+
+.dialog-enter { animation: zoom-in 280ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+.dialog-exit { animation: zoom-out 220ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+
+.card-enter { animation: slide-up 320ms cubic-bezier(0.2, 0.65, 0.3, 1) both; }
+
+/* Minor interaction helpers */
+.hover-pop { transition: transform 160ms ease; }
+.hover-pop:hover { transform: scale(1.02); }
+
+.active-press { transition: transform 100ms ease; }
+.active-press:active { transform: scale(0.98); }

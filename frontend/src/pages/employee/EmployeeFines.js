@@ -81,82 +81,92 @@ const EmployeeFines = ({ user, onAppeal }) => {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
+      <div className="bg-card border border-border rounded-3xl shadow-card">
         <div className="p-6 border-b border-border bg-secondary/30">
           <h3 className="font-bold text-foreground">Fine History</h3>
         </div>
-        <table className="w-full text-left">
-          <thead className="bg-secondary/50">
-            <tr className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest border-b border-border">
-              <th className="px-6 py-5">Reason</th>
-              <th className="px-6 py-5">Amount</th>
-              <th className="px-6 py-5">Date</th>
-              <th className="px-6 py-5">Status</th>
-              <th className="px-6 py-5 w-16">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {fines.map((f) => (
-              <tr key={f.id} className="hover:bg-secondary/30" data-testid={`fine-record-${f.id}`}>
-                <td className="px-6 py-5">
-                  <p className="font-bold text-foreground">{f.reason}</p>
-                </td>
-                <td className="px-6 py-5 font-black text-destructive">₨ {f.amount.toLocaleString()}</td>
-                <td className="px-6 py-5 text-muted-foreground">{f.date}</td>
-                <td className="px-6 py-5">
-                  {f.status === 'Paid' ? (
-                    <span className="text-[10px] font-bold uppercase px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20">Cleared</span>
-                  ) : (
-                    <button
-                      onClick={() => handlePayFine(f.id)}
-                      className="bg-destructive text-destructive-foreground px-4 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg active:scale-95 transition-all inline-flex items-center gap-2"
-                    >
-                      <CreditCard className="w-3 h-3" />
-                      Pay
-                    </button>
-                  )}
-                </td>
-                <td className="px-6 py-5">
-                  <div className="relative inline-block">
-                    <button
-                      onClick={() => setOpenMenuId(openMenuId === f.id ? null : f.id)}
-                      className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                      data-testid={`fine-menu-${f.id}`}
-                    >
-                      <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                    </button>
-
-                    {openMenuId === f.id && (
-                      <>
-                        <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
-                        <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter">
-                          <button
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              onAppeal?.(f.id);
-                            }}
-                            className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
-                          >
-                            <AlertCircle className="w-4 h-4 text-warning" />
-                            Submit Appeal
-                          </button>
-                        </div>
-                      </>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-secondary/50">
+              <tr className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest border-b border-border">
+                <th className="px-6 py-5">Reason</th>
+                <th className="px-6 py-5">Amount</th>
+                <th className="px-6 py-5">Date</th>
+                <th className="px-6 py-5">Status</th>
+                <th className="px-6 py-5 w-16">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {fines.map((f) => (
+                <tr key={f.id} className="hover:bg-secondary/30" data-testid={`fine-record-${f.id}`}>
+                  <td className="px-6 py-5">
+                    <p className="font-bold text-foreground">{f.reason}</p>
+                  </td>
+                  <td className="px-6 py-5 font-black text-destructive">₨ {f.amount.toLocaleString()}</td>
+                  <td className="px-6 py-5 text-muted-foreground">{f.date}</td>
+                  <td className="px-6 py-5">
+                    {f.status === 'Paid' ? (
+                      <span className="text-[10px] font-bold uppercase px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20">Cleared</span>
+                    ) : (
+                      <button
+                        onClick={() => handlePayFine(f.id)}
+                        className="bg-destructive text-destructive-foreground px-4 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg active:scale-95 transition-all inline-flex items-center gap-2"
+                      >
+                        <CreditCard className="w-3 h-3" />
+                        Pay
+                      </button>
                     )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {fines.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-8 py-20 text-center text-muted-foreground font-medium italic">
-                  Your fine record is clear. Keep up the good work!
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="relative">
+                      <button
+                        onClick={() => setOpenMenuId(openMenuId === f.id ? null : f.id)}
+                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                        data-testid={`fine-menu-${f.id}`}
+                      >
+                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {fines.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-8 py-20 text-center text-muted-foreground font-medium italic">
+                    Your fine record is clear. Keep up the good work!
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Menu Dropdown Portal */}
+      {openMenuId && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
+          <div 
+            className="fixed z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter"
+            style={{
+              top: document.querySelector(`[data-testid="fine-menu-${openMenuId}"]`)?.getBoundingClientRect().bottom + 8 || 0,
+              right: 40
+            }}
+          >
+            <button
+              onClick={() => {
+                const fineId = openMenuId;
+                setOpenMenuId(null);
+                onAppeal?.(fineId);
+              }}
+              className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
+            >
+              <AlertCircle className="w-4 h-4 text-warning" />
+              Submit Appeal
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

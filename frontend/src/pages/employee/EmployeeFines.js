@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fineAPI } from '../../lib/api';
 import { toast } from 'sonner';
 import { Receipt, AlertTriangle, Wallet, CreditCard, MoreVertical, AlertCircle } from 'lucide-react';
@@ -7,6 +7,8 @@ const EmployeeFines = ({ user, onAppeal }) => {
   const [fines, setFines] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
+  const menuButtonRefs = useRef({});
 
   useEffect(() => {
     loadFines();
@@ -31,6 +33,20 @@ const EmployeeFines = ({ user, onAppeal }) => {
     } catch (error) {
       toast.error('Failed to process payment');
     }
+  };
+
+  const handleMenuClick = (fineId, event) => {
+    if (openMenuId === fineId) {
+      setOpenMenuId(null);
+      return;
+    }
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.bottom + 8,
+      right: window.innerWidth - rect.right
+    });
+    setOpenMenuId(fineId);
   };
 
   const pendingAmount = fines.filter((f) => f.status === 'Unpaid').reduce((sum, f) => sum + f.amount, 0);
@@ -118,15 +134,14 @@ const EmployeeFines = ({ user, onAppeal }) => {
                     )}
                   </td>
                   <td className="px-6 py-5">
-                    <div className="relative">
-                      <button
-                        onClick={() => setOpenMenuId(openMenuId === f.id ? null : f.id)}
-                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                        data-testid={`fine-menu-${f.id}`}
-                      >
-                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                    </div>
+                    <button
+                      ref={el => menuButtonRefs.current[f.id] = el}
+                      onClick={(e) => handleMenuClick(f.id, e)}
+                      className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                      data-testid={`fine-menu-${f.id}`}
+                    >
+                      <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -142,16 +157,17 @@ const EmployeeFines = ({ user, onAppeal }) => {
         </div>
       </div>
 
-      {/* Menu Dropdown Portal */}
+      {/* Menu Dropdown Portal - rendered outside table */}
       {openMenuId && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
           <div 
             className="fixed z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter"
             style={{
-              top: document.querySelector(`[data-testid="fine-menu-${openMenuId}"]`)?.getBoundingClientRect().bottom + 8 || 0,
-              right: 40
+              top: menuPosition.top,
+              right: menuPosition.right
             }}
+            data-testid="fine-menu-dropdown"
           >
             <button
               onClick={() => {
@@ -160,6 +176,7 @@ const EmployeeFines = ({ user, onAppeal }) => {
                 onAppeal?.(fineId);
               }}
               className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
+              data-testid="submit-appeal-option"
             >
               <AlertCircle className="w-4 h-4 text-warning" />
               Submit Appeal

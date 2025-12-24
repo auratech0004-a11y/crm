@@ -116,31 +116,34 @@ const EmployeeFines = ({ user, onAppeal }) => {
                     </button>
                   )}
                 </td>
-                <td className="px-6 py-5 relative">
-                  <button
-                    onClick={() => setOpenMenuId(openMenuId === f.id ? null : f.id)}
-                    className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                  >
-                    <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                  </button>
+                <td className="px-6 py-5">
+                  <div className="relative inline-block">
+                    <button
+                      onClick={() => setOpenMenuId(openMenuId === f.id ? null : f.id)}
+                      className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                      data-testid={`fine-menu-${f.id}`}
+                    >
+                      <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                    </button>
 
-                  {openMenuId === f.id && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                      <div className="absolute right-6 top-12 z-20 bg-card border border-border rounded-xl shadow-lg py-2 min-w-[160px]">
-                        <button
-                          onClick={() => {
-                            setOpenMenuId(null);
-                            onAppeal?.(f.id);
-                          }}
-                          className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
-                        >
-                          <AlertCircle className="w-4 h-4 text-warning" />
-                          Submit Appeal
-                        </button>
-                      </div>
-                    </>
-                  )}
+                    {openMenuId === f.id && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
+                        <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter">
+                          <button
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              onAppeal?.(f.id);
+                            }}
+                            className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
+                          >
+                            <AlertCircle className="w-4 h-4 text-warning" />
+                            Submit Appeal
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

@@ -22,6 +22,7 @@ const EmployeeManagement = () => {
     salary: 0,
     role: 'EMPLOYEE',
     profile_pic: '',
+    joining_date: new Date().toISOString().split('T')[0],
   });
 
   useEffect(() => {
@@ -99,6 +100,7 @@ const EmployeeManagement = () => {
       salary: 0,
       role: 'EMPLOYEE',
       profile_pic: '',
+      joining_date: new Date().toISOString().split('T')[0],
     });
     setEditingEmployee(null);
   };
@@ -117,6 +119,7 @@ const EmployeeManagement = () => {
       salary: emp.salary,
       role: emp.role,
       profile_pic: emp.profile_pic || '',
+      joining_date: emp.joining_date || '',
     });
     setModalOpen(true);
   };
@@ -347,6 +350,17 @@ const EmployeeManagement = () => {
                     <option value="LEAD">Lead</option>
                   </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Joining Date</label>
+                <input
+                  type="date"
+                  className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
+                  value={formData.joining_date || ''}
+                  onChange={(e) => setFormData({ ...formData, joining_date: e.target.value })}
+                  data-testid="joining-date-input"
+                />
               </div>
 
               <div className="pt-4 flex gap-3">

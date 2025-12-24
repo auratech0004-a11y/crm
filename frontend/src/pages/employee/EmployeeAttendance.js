@@ -9,6 +9,7 @@ const EmployeeAttendance = ({ user, onAppeal }) => {
   const [checkingIn, setCheckingIn] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -72,6 +73,20 @@ const EmployeeAttendance = ({ user, onAppeal }) => {
     } finally {
       setCheckingOut(false);
     }
+  };
+
+  const handleMenuClick = (recordId, event) => {
+    if (openMenuId === recordId) {
+      setOpenMenuId(null);
+      return;
+    }
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.bottom + 8,
+      right: window.innerWidth - rect.right
+    });
+    setOpenMenuId(recordId);
   };
 
   const presentDays = attendance.filter((r) => r.status === 'Present').length;
@@ -191,76 +206,86 @@ const EmployeeAttendance = ({ user, onAppeal }) => {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card min-h-[300px]">
-        <table className="w-full text-left">
-          <thead className="bg-secondary">
-            <tr className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest border-b border-border">
-              <th className="px-6 py-5">Date</th>
-              <th className="px-6 py-5">Status</th>
-              <th className="px-6 py-5">Check In</th>
-              <th className="px-6 py-5">Check Out</th>
-              <th className="px-6 py-5 hidden sm:table-cell">Location</th>
-              <th className="px-6 py-5 w-16">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {attendance.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-8 py-20 text-center text-muted-foreground italic font-medium">
-                  No attendance records found in history
-                </td>
+      <div className="bg-card border border-border rounded-3xl shadow-card min-h-[300px]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-secondary">
+              <tr className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest border-b border-border">
+                <th className="px-6 py-5">Date</th>
+                <th className="px-6 py-5">Status</th>
+                <th className="px-6 py-5">Check In</th>
+                <th className="px-6 py-5">Check Out</th>
+                <th className="px-6 py-5 hidden sm:table-cell">Location</th>
+                <th className="px-6 py-5 w-16">Action</th>
               </tr>
-            ) : (
-              attendance.map((r) => (
-                <tr key={r.id} className="hover:bg-secondary/50 transition-colors" data-testid={`attendance-record-${r.id}`}>
-                  <td className="px-6 py-5 font-bold text-foreground">{r.date}</td>
-                  <td className="px-6 py-5">
-                    <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusClass(r.status)}`}>
-                      {r.status}
-                    </span>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {attendance.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-8 py-20 text-center text-muted-foreground italic font-medium">
+                    No attendance records found in history
                   </td>
-                  <td className="px-6 py-5 font-bold text-foreground">{r.check_in || '-'}</td>
-                  <td className="px-6 py-5 font-bold text-foreground">{r.check_out || '-'}</td>
-                  <td className="px-6 py-5 text-muted-foreground text-xs truncate max-w-[150px] hidden sm:table-cell">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 flex-shrink-0" />
-                      {r.location?.address || 'No location'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-5">
-                    <div className="relative inline-block">
+                </tr>
+              ) : (
+                attendance.map((r) => (
+                  <tr key={r.id} className="hover:bg-secondary/50 transition-colors" data-testid={`attendance-record-${r.id}`}>
+                    <td className="px-6 py-5 font-bold text-foreground">{r.date}</td>
+                    <td className="px-6 py-5">
+                      <span className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusClass(r.status)}`}>
+                        {r.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-5 font-bold text-foreground">{r.check_in || '-'}</td>
+                    <td className="px-6 py-5 font-bold text-foreground">{r.check_out || '-'}</td>
+                    <td className="px-6 py-5 text-muted-foreground text-xs truncate max-w-[150px] hidden sm:table-cell">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 flex-shrink-0" />
+                        {r.location?.address || 'No location'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
                       <button
-                        onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
+                        onClick={(e) => handleMenuClick(r.id, e)}
                         className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                        data-testid={`attendance-menu-${r.id}`}
                       >
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
                       </button>
-
-                      {openMenuId === r.id && (
-                        <>
-                          <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
-                          <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter">
-                            <button
-                              onClick={() => {
-                                setOpenMenuId(null);
-                                onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);
-                              }}
-                              className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
-                            >
-                              <AlertCircle className="w-4 h-4 text-warning" />
-                              Submit Appeal
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* Menu Dropdown Portal - rendered outside table */}
+      {openMenuId && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
+          <div 
+            className="fixed z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter"
+            style={{
+              top: menuPosition.top,
+              right: menuPosition.right
+            }}
+            data-testid="attendance-menu-dropdown"
+          >
+            <button
+              onClick={() => {
+                const record = attendance.find(a => a.id === openMenuId);
+                setOpenMenuId(null);
+                onAppeal(record?.status === 'Late' ? 'Late' : 'Absent', record?.date, openMenuId);
+              }}
+              className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
+            >
+              <AlertCircle className="w-4 h-4 text-warning" />
+              Submit Appeal
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -227,31 +227,33 @@ const EmployeeAttendance = ({ user, onAppeal }) => {
                       {r.location?.address || 'No location'}
                     </div>
                   </td>
-                  <td className="px-6 py-5 relative">
-                    <button
-                      onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
-                      className="p-2 hover:bg-secondary rounded-lg transition-colors"
-                    >
-                      <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                    </button>
+                  <td className="px-6 py-5">
+                    <div className="relative inline-block">
+                      <button
+                        onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
+                        className="p-2 hover:bg-secondary rounded-lg transition-colors"
+                      >
+                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
+                      </button>
 
-                    {openMenuId === r.id && (
-                      <>
-                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                        <div className="absolute right-6 top-12 z-20 bg-card border border-border rounded-xl shadow-lg py-2 min-w-[180px] dropdown-enter">
-                          <button
-                            onClick={() => {
-                              setOpenMenuId(null);
-                              onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);
-                            }}
-                            className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
-                          >
-                            <AlertCircle className="w-4 h-4 text-warning" />
-                            Submit Appeal
-                          </button>
-                        </div>
-                      </>
-                    )}
+                      {openMenuId === r.id && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
+                          <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-xl shadow-2xl py-2 min-w-[180px] dropdown-enter">
+                            <button
+                              onClick={() => {
+                                setOpenMenuId(null);
+                                onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);
+                              }}
+                              className="w-full px-4 py-2.5 text-left text-sm font-medium text-foreground hover:bg-secondary flex items-center gap-2 transition-colors"
+                            >
+                              <AlertCircle className="w-4 h-4 text-warning" />
+                              Submit Appeal
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

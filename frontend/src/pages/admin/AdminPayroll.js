@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { payrollAPI, employeeAPI, fineAPI } from '../../lib/api';
 import { toast } from 'sonner';
-import { DollarSign, CheckCircle, Clock, Download } from 'lucide-react';
+import { DollarSign, CheckCircle, Clock, Download, CreditCard } from 'lucide-react';
 
 const AdminPayroll = () => {
   const [employees, setEmployees] = useState([]);
@@ -41,6 +41,16 @@ const AdminPayroll = () => {
       toast.error('Failed to process payroll');
     } finally {
       setIsProcessing(false);
+    }
+  };
+
+  const payEmployee = async (empId) => {
+    try {
+      await payrollAPI.payEmployee(empId);
+      await loadData();
+      toast.success('Salary paid successfully!');
+    } catch (error) {
+      toast.error('Failed to pay salary');
     }
   };
 
@@ -159,9 +169,21 @@ const AdminPayroll = () => {
                     </span>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <button className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20">
-                      <Download className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-2 justify-end">
+                      {!isPaid && (
+                        <button 
+                          onClick={() => payEmployee(emp.id)}
+                          className="px-4 py-2 bg-success text-success-foreground rounded-xl text-xs font-bold hover:bg-success/90 flex items-center gap-2"
+                          data-testid={`pay-employee-${emp.id}`}
+                        >
+                          <CreditCard className="w-3 h-3" />
+                          Pay
+                        </button>
+                      )}
+                      <button className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20">
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

@@ -89,12 +89,6 @@ const LoginPage = () => {
           >
             {loading ? 'Logging in...' : 'Login to Workspace'}
           </button>
-
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Demo accounts:</p>
-            <p className="mt-1"><strong>Admin:</strong> admin / 123</p>
-            <p><strong>Employee:</strong> babar / 12345678</p>
-          </div>
         </form>
       </div>
     </div>

@@ -167,6 +167,10 @@ export const payrollAPI = {
     const response = await api.get('/payroll/status');
     return response.data;
   },
+  payEmployee: async (employeeId) => {
+    const response = await api.post(`/payroll/pay/${employeeId}`, {});
+    return response.data;
+  },
 };
 
 // Settings API

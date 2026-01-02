@@ -690,6 +690,55 @@ async def process_payroll(data: dict, current_user: dict = Depends(get_current_u
     
     return {"message": "Payroll processed successfully"}
 
+@api_router.post("/payroll/pay/{employee_id}")
+async def pay_employee(employee_id: str, current_user: dict = Depends(get_current_user)):
+    if current_user["role"] != "ADMIN":
+        raise HTTPException(status_code=403, detail="Only admin can pay salaries")
+    
+    month = datetime.now(timezone.utc).strftime("%m")
+    year = datetime.now(timezone.utc).strftime("%Y")
+    
+    employee = await db.employees.find_one({"id": employee_id}, {"_id": 0})
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    
+    # Get fines for this employee
+    fines = await db.fines.find({
+        "employee_id": employee_id,
+        "status": "Unpaid"
+    }, {"_id": 0}).to_list(100)
+    total_fines = sum(f["amount"] for f in fines)
+    
+    base_salary = employee.get("salary", 0)
+    deductions = total_fines
+    net_salary = base_salary - deductions
+    
+    payroll_record = {
+        "id": str(uuid.uuid4()),
+        "employee_id": employee_id,
+        "month": month,
+        "year": year,
+        "base_salary": base_salary,
+        "deductions": deductions,
+        "net_salary": net_salary,
+        "status": "Paid"
+    }
+    
+    # Update or insert payroll record
+    await db.payroll.update_one(
+        {"employee_id": employee_id, "month": month, "year": year},
+        {"$set": payroll_record},
+        upsert=True
+    )
+    
+    # Mark fines as paid
+    await db.fines.update_many(
+        {"employee_id": employee_id, "status": "Unpaid"},
+        {"$set": {"status": "Paid"}}
+    )
+    
+    return {"message": f"Salary paid to {employee['name']}", "net_salary": net_salary}
+
 @api_router.get("/payroll/status")
 async def get_payroll_status(current_user: dict = Depends(get_current_user)):
     month = datetime.now(timezone.utc).strftime("%m")

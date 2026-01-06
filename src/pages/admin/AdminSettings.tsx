@@ -3,15 +3,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { storage } from '@/lib/store';
 import { Employee } from '@/types';
-import { Moon, Sun, Shield, Lock, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Moon, Sun, Shield, Lock, Eye, EyeOff, Check, X, Clock, Building } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AVAILABLE_MODULES = [
-  { id: 'dashboard', label: 'Dashboard', icon: 'LayoutDashboard' },
-  { id: 'attendance', label: 'Attendance', icon: 'Clock' },
-  { id: 'leave', label: 'Leave', icon: 'Calendar' },
-  { id: 'payroll', label: 'Payroll', icon: 'DollarSign' },
-  { id: 'expense', label: 'Expenses', icon: 'Receipt' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'attendance', label: 'Attendance' },
+  { id: 'leave', label: 'Leave' },
+  { id: 'fines', label: 'Fines' },
+  { id: 'salary', label: 'Salary' },
 ];
 
 const AdminSettings: React.FC = () => {
@@ -22,46 +22,110 @@ const AdminSettings: React.FC = () => {
   const [permissionModalOpen, setPermissionModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  const [settings, setSettings] = useState({
+    office_start_time: '09:00',
+    office_end_time: '18:00',
+    late_fine_amount: 100,
+    half_day_hours: 4,
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadEmployees = async () => {
-      const emps = await storage.getEmployees();
-      setEmployees(emps.filter(e => e.role === 'EMPLOYEE'));
-    };
-    
-    loadEmployees();
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      const [empData, settingsData] = await Promise.all([
+        storage.getEmployees(),
+        storage.getSettings(),
+      ]);
+      
+      setEmployees(empData.filter(e => e.role === 'EMPLOYEE'));
+      
+      if (settingsData) {
+        setSettings({
+          office_start_time: settingsData.office_start_time || '09:00',
+          office_end_time: settingsData.office_end_time || '18:00',
+          late_fine_amount: settingsData.late_fine_amount || 100,
+          half_day_hours: settingsData.half_day_hours || 4,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleModule = async (moduleId: string) => {
     if (!selectedEmp) return;
     
-    const allEmps = await storage.getEmployees();
     const current = selectedEmp.allowedModules || [];
     const updated = current.includes(moduleId) 
       ? current.filter(m => m !== moduleId) 
       : [...current, moduleId];
     
-    const newEmp = { ...selectedEmp, allowedModules: updated };
-    const newAll = allEmps.map(e => e.id === selectedEmp.id ? newEmp : e);
-    
-    // Assuming storage has a setEmployees method or we update via API
-    setSelectedEmp(newEmp);
-    setEmployees(newAll.filter(e => e.role === 'EMPLOYEE'));
+    try {
+      await storage.updateEmployee({
+        ...selectedEmp,
+        allowedModules: updated
+      });
+      
+      setSelectedEmp({
+        ...selectedEmp,
+        allowedModules: updated
+      });
+      
+      setEmployees(employees.map(e => 
+        e.id === selectedEmp.id 
+          ? { ...e, allowedModules: updated } 
+          : e
+      ));
+      
+      toast.success('Permissions updated');
+    } catch (error) {
+      toast.error('Failed to update permissions');
+    }
   };
 
   const handlePasswordChange = async () => {
+    if (!user) return;
+    
     if (newPassword.length < 4) {
       toast.error('Password must be at least 4 characters');
       return;
     }
     
-    const allEmps = await storage.getEmployees();
-    const updated = allEmps.map(e => e.id === user?.id ? { ...e, password: newPassword } : e);
-    
-    // Assuming storage has a setEmployees method or we update via API
-    setNewPassword('');
-    toast.success('Password changed successfully');
+    try {
+      await storage.updateEmployee({
+        ...user,
+        password: newPassword
+      } as Employee);
+      
+      setNewPassword('');
+      toast.success('Password changed successfully');
+    } catch (error) {
+      toast.error('Failed to change password');
+    }
   };
+
+  const handleSaveSettings = async () => {
+    try {
+      await storage.updateSettings(settings);
+      toast.success('Settings saved successfully');
+    } catch (error) {
+      toast.error('Failed to save settings');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-slide-up">
@@ -69,6 +133,7 @@ const AdminSettings: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground">Admin Settings</h1>
         <p className="text-muted-foreground mt-1">System configuration and permissions</p>
       </div>
+      
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
           <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
@@ -80,20 +145,22 @@ const AdminSettings: React.FC = () => {
               <p className="font-bold text-foreground">Theme Mode</p>
               <p className="text-sm text-muted-foreground">Toggle between light and dark</p>
             </div>
-            <button
+            <button 
               onClick={toggleTheme}
-              className={`relative w-16 h-8 rounded-full transition-colors ${
-                theme === 'dark' ? 'bg-primary' : 'bg-secondary border-2 border-border'
-              }`}
+              className={`relative w-16 h-8 rounded-full transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-secondary border-2 border-border'}`}
             >
               <div className={`absolute top-1 w-6 h-6 rounded-full transition-all flex items-center justify-center ${
                 theme === 'dark' ? 'right-1 bg-primary-foreground' : 'left-1 bg-warning'
               }`}>
-                {theme === 'dark' ? <Moon className="w-3 h-3 text-primary" /> : <Sun className="w-3 h-3 text-warning-foreground" />}
+                {theme === 'dark' ? 
+                  <Moon className="w-3 h-3 text-primary" /> : 
+                  <Sun className="w-3 h-3 text-warning-foreground" />
+                }
               </div>
             </button>
           </div>
         </div>
+        
         <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
           <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
             <Lock className="w-6 h-6 text-destructive" />
@@ -101,7 +168,9 @@ const AdminSettings: React.FC = () => {
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">New Password</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+                New Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -110,7 +179,7 @@ const AdminSettings: React.FC = () => {
                   className="w-full bg-secondary border-0 rounded-xl px-4 py-3 pr-12 outline-none focus:ring-2 focus:ring-primary text-foreground"
                   placeholder="Enter new password"
                 />
-                <button
+                <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -119,7 +188,7 @@ const AdminSettings: React.FC = () => {
                 </button>
               </div>
             </div>
-            <button
+            <button 
               onClick={handlePasswordChange}
               className="w-full py-3 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg active:scale-95 transition-transform"
             >
@@ -128,6 +197,68 @@ const AdminSettings: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
+        <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+          <Building className="w-6 h-6 text-primary" />
+          Office Settings
+        </h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+              <Clock className="w-3 h-3 inline mr-1" />
+              Office Start Time
+            </label>
+            <input
+              type="time"
+              value={settings.office_start_time}
+              onChange={(e) => setSettings({ ...settings, office_start_time: e.target.value })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+              <Clock className="w-3 h-3 inline mr-1" />
+              Office End Time
+            </label>
+            <input
+              type="time"
+              value={settings.office_end_time}
+              onChange={(e) => setSettings({ ...settings, office_end_time: e.target.value })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+              Late Fine (PKR)
+            </label>
+            <input
+              type="number"
+              value={settings.late_fine_amount}
+              onChange={(e) => setSettings({ ...settings, late_fine_amount: parseInt(e.target.value) || 0 })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+              Half Day Hours
+            </label>
+            <input
+              type="number"
+              value={settings.half_day_hours}
+              onChange={(e) => setSettings({ ...settings, half_day_hours: parseInt(e.target.value) || 0 })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+        </div>
+        <button 
+          onClick={handleSaveSettings}
+          className="mt-6 px-8 py-3 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg active:scale-95 transition-transform"
+        >
+          Save Office Settings
+        </button>
+      </div>
+      
       <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
         <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
           <Shield className="w-6 h-6 text-accent" />
@@ -156,6 +287,7 @@ const AdminSettings: React.FC = () => {
           ))}
         </div>
       </div>
+      
       {permissionModalOpen && selectedEmp && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-card w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-border animate-scale-in">
@@ -164,7 +296,7 @@ const AdminSettings: React.FC = () => {
                 <h3 className="text-xl font-bold text-foreground">Manage Access</h3>
                 <p className="text-xs text-muted-foreground mt-1">Modules for <strong>{selectedEmp.name}</strong></p>
               </div>
-              <button
+              <button 
                 onClick={() => setPermissionModalOpen(false)}
                 className="text-muted-foreground hover:text-foreground text-2xl p-2"
               >
@@ -177,7 +309,6 @@ const AdminSettings: React.FC = () => {
                 return (
                   <button
                     key={mod.id}
-                    type="button"
                     onClick={() => toggleModule(mod.id)}
                     className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
                       isAllowed 
@@ -196,7 +327,7 @@ const AdminSettings: React.FC = () => {
               })}
             </div>
             <div className="p-6 border-t border-border bg-secondary flex justify-end">
-              <button
+              <button 
                 onClick={() => setPermissionModalOpen(false)}
                 className="px-8 py-3 gradient-primary text-primary-foreground font-bold rounded-xl active:scale-95 transition-all shadow-lg shadow-primary/20"
               >

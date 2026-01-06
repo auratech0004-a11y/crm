@@ -4,7 +4,7 @@ import { Users, User, Lock, AlertCircle } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('123');
+  const [password, setPassword] = useState('admin');
   const [error, setError] = useState('');
   const { login } = useAuth();
 
@@ -70,17 +70,18 @@ const LoginPage: React.FC = () => {
               />
             </div>
           </div>
-          <button
-            type="submit"
+          <button 
+            type="submit" 
             className="w-full py-4 gradient-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/30"
           >
             Login to Workspace
           </button>
           <div className="text-center text-sm text-muted-foreground">
             <p>Demo accounts:</p>
-            <p className="mt-1"><strong>Admin:</strong> admin / 123</p>
-            <p><strong>Employee:</strong> babar / 12345678</p>
-            <p><strong>Employee:</strong> sara / 12345678</p>
+            <p className="mt-1"><strong>Admin:</strong> admin / admin</p>
+            <p><strong>Employee:</strong> babar / babar</p>
+            <p><strong>Employee:</strong> sara / sara</p>
+            <p><strong>New Employees:</strong> Use username as password</p>
           </div>
         </form>
       </div>

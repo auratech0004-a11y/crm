@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Employee } from '@/types';
 import { storage } from '@/lib/store';
 import { CheckCircle, Clock, XCircle, Calendar, MapPin, LogIn, MoreVertical, AlertCircle } from 'lucide-react';
@@ -11,14 +11,23 @@ interface EmployeeAttendanceProps {
 
 const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn, onAppeal }) => {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const records = storage.getAttendance().filter(a => a.employeeId === user.id);
+  const [records, setRecords] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const loadAttendance = async () => {
+      const att = await storage.getAttendance();
+      setRecords(att.filter(a => a.employeeId === user.id));
+    };
+    
+    loadAttendance();
+  }, [user.id]);
+
   const today = new Date().toISOString().split('T')[0];
   const hasCheckedInToday = records.some(r => r.date === today);
-
   const presentDays = records.filter(r => r.status === 'Present').length;
   const absentDays = records.filter(r => r.status === 'Absent').length;
   const lateDays = records.filter(r => r.status === 'Late').length;
-
+  
   const getStatusClass = (status: string) => {
     switch (status) {
       case 'Present': return 'bg-success/10 text-success border-success/20';
@@ -44,14 +53,12 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
           <div>
             <h2 className="text-xl font-black text-foreground">{hasCheckedInToday ? "Already Checked In" : "Today's Attendance"}</h2>
             <p className="text-muted-foreground text-sm font-medium">
-              {hasCheckedInToday 
-                ? "You have successfully marked your presence today." 
-                : "You haven't marked your attendance yet."}
+              {hasCheckedInToday ? "You have successfully marked your presence today." : "You haven't marked your attendance yet."}
             </p>
           </div>
         </div>
         {!hasCheckedInToday && (
-          <button 
+          <button
             onClick={onCheckIn}
             className="w-full sm:w-auto gradient-primary text-primary-foreground px-10 py-4 rounded-2xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3"
           >
@@ -133,7 +140,7 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
                     </div>
                   </td>
                   <td className="px-6 py-5 relative">
-                    <button 
+                    <button
                       onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
                       className="p-2 hover:bg-secondary rounded-lg transition-colors"
                     >
@@ -143,7 +150,7 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
                       <>
                         <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
                         <div className="absolute right-6 top-12 z-20 bg-card border border-border rounded-xl shadow-lg py-2 min-w-[180px] dropdown-enter">
-                          <button 
+                          <button
                             onClick={() => {
                               setOpenMenuId(null);
                               onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);
@@ -153,7 +160,7 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
                             <AlertCircle className="w-4 h-4 text-warning" />
                             Submit Appeal
                           </button>
-                          <button 
+                          <button
                             onClick={() => {
                               setOpenMenuId(null);
                               onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);

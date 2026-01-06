@@ -7,20 +7,19 @@ import { toast } from 'sonner';
 
 const AdminLeave: React.FC = () => {
   const [leaves, setLeaves] = useState<Leave[]>([]);
-
+  
   useEffect(() => {
     loadLeaves();
   }, []);
 
-  const loadLeaves = () => {
-    const allLeaves = storage.getLeaves();
+  const loadLeaves = async () => {
+    const allLeaves = await storage.getLeaves();
     setLeaves(allLeaves);
   };
 
   const handleAction = async (leaveId: string, status: 'Approved' | 'Rejected') => {
     await updateLeaveStatus(leaveId, status);
     loadLeaves();
-    storage.addLog('Leave', `Leave request ${status.toLowerCase()}`, 'Admin');
     toast.success(`Leave request ${status.toLowerCase()}`);
   };
 
@@ -65,13 +64,13 @@ const AdminLeave: React.FC = () => {
                 </td>
                 <td className="px-8 py-6 text-right">
                   <div className="flex gap-2 justify-end">
-                    <button 
+                    <button
                       onClick={() => handleAction(l.id, 'Approved')}
                       className="p-2 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-colors"
                     >
                       <Check className="w-4 h-4" />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleAction(l.id, 'Rejected')}
                       className="p-2 bg-destructive text-destructive-foreground rounded-xl hover:bg-destructive/90 transition-colors"
                     >

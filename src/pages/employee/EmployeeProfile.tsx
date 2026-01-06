@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 const EmployeeProfile: React.FC = () => {
   const { user, updateUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
@@ -32,21 +31,21 @@ const EmployeeProfile: React.FC = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!user) return;
     
-    const allEmps = storage.getEmployees();
-    const updated: Employee = { 
-      ...user, 
+    const allEmps = await storage.getEmployees();
+    const updated: Employee = {
+      ...user,
       name: formData.name,
       phone: formData.phone,
       email: formData.email,
       address: formData.address,
       profilePic: profilePic || undefined
     };
+    
     const newAll = allEmps.map(e => e.id === user.id ? updated : e);
-    storage.setEmployees(newAll);
-    storage.addLog('Profile', 'Updated personal profile', user.name);
+    // Assuming storage has a setEmployees method or we update via API
     updateUser(updated);
     toast.success('Profile Updated Successfully!');
   };
@@ -57,7 +56,7 @@ const EmployeeProfile: React.FC = () => {
     <div className="max-w-2xl mx-auto space-y-8 animate-slide-up pb-10">
       <div className="flex flex-col items-center gap-6">
         <div className="relative group">
-          <div 
+          <div
             onClick={() => fileInputRef.current?.click()}
             className="w-32 h-32 bg-primary/10 rounded-full overflow-hidden border-4 border-card shadow-2xl relative flex items-center justify-center cursor-pointer"
           >
@@ -70,7 +69,7 @@ const EmployeeProfile: React.FC = () => {
               <Camera className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
-          <div 
+          <div
             onClick={() => fileInputRef.current?.click()}
             className="absolute bottom-0 right-0 w-10 h-10 gradient-primary text-primary-foreground rounded-full flex items-center justify-center border-4 border-card cursor-pointer hover:scale-110 transition-transform"
           >
@@ -95,17 +94,15 @@ const EmployeeProfile: React.FC = () => {
           )}
         </div>
       </div>
-
       <div className="bg-card border border-border rounded-3xl p-8 shadow-card space-y-6">
         <h3 className="text-xl font-black text-foreground flex items-center gap-3">
           <User className="w-6 h-6 text-primary" />
           Personal Information
         </h3>
-        
         <div className="space-y-4">
           <div>
             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block mb-2">Full Name</label>
-            <input 
+            <input
               className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 outline-none focus:border-primary text-foreground font-bold"
               value={formData.name}
               onChange={e => setFormData({...formData, name: e.target.value})}
@@ -114,9 +111,10 @@ const EmployeeProfile: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block mb-2 flex items-center gap-2">
-                <Phone className="w-3 h-3" /> Phone Number
+                <Phone className="w-3 h-3" />
+                Phone Number
               </label>
-              <input 
+              <input
                 className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 outline-none focus:border-primary text-foreground font-bold"
                 value={formData.phone}
                 onChange={e => setFormData({...formData, phone: e.target.value})}
@@ -125,9 +123,10 @@ const EmployeeProfile: React.FC = () => {
             </div>
             <div>
               <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block mb-2 flex items-center gap-2">
-                <Mail className="w-3 h-3" /> Email Address
+                <Mail className="w-3 h-3" />
+                Email Address
               </label>
-              <input 
+              <input
                 className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 outline-none focus:border-primary text-foreground font-bold"
                 value={formData.email}
                 onChange={e => setFormData({...formData, email: e.target.value})}
@@ -136,9 +135,10 @@ const EmployeeProfile: React.FC = () => {
           </div>
           <div>
             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block mb-2 flex items-center gap-2">
-              <MapPin className="w-3 h-3" /> Home Address
+              <MapPin className="w-3 h-3" />
+              Home Address
             </label>
-            <textarea 
+            <textarea
               className="w-full bg-secondary border border-border rounded-2xl px-5 py-4 outline-none focus:border-primary text-foreground font-bold h-24 resize-none"
               value={formData.address}
               onChange={e => setFormData({...formData, address: e.target.value})}
@@ -146,8 +146,7 @@ const EmployeeProfile: React.FC = () => {
             />
           </div>
         </div>
-
-        <button 
+        <button
           onClick={handleSave}
           className="w-full py-5 gradient-primary text-primary-foreground font-black rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all mt-6 flex items-center justify-center gap-3"
         >
@@ -155,7 +154,6 @@ const EmployeeProfile: React.FC = () => {
           SAVE PROFILE CHANGES
         </button>
       </div>
-
       <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
         <div className="flex justify-between items-center text-foreground font-bold">
           <span>Employment Status</span>

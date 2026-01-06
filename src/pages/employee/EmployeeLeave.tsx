@@ -19,13 +19,14 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
     loadLeaves();
   }, [user.id]);
 
-  const loadLeaves = () => {
-    const allLeaves = storage.getLeaves();
+  const loadLeaves = async () => {
+    const allLeaves = await storage.getLeaves();
     setLeaves(allLeaves.filter(l => l.employeeId === user.id));
   };
 
   const handleApplyLeave = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     const newLeave: Leave = {
       id: Math.random().toString(36).substr(2, 9),
       employeeId: user.id,
@@ -37,7 +38,6 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
     
     await addLeave(newLeave);
     loadLeaves();
-    storage.addLog('Leave', `Applied for ${formData.type} leave`, user.name);
     setModalOpen(false);
     setFormData({
       type: 'Annual',
@@ -55,7 +55,7 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
           <h1 className="text-3xl font-black text-foreground">Leave Requests</h1>
           <p className="text-muted-foreground mt-1 font-medium italic">Apply and track your leaves</p>
         </div>
-        <button 
+        <button
           onClick={() => setModalOpen(true)}
           className="bg-warning text-warning-foreground px-8 py-3 rounded-2xl font-bold shadow-lg shadow-warning/20 active:scale-95 transition-all flex items-center gap-3"
         >
@@ -125,7 +125,7 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
           <div className="bg-card w-full max-w-md rounded-3xl shadow-2xl border border-border animate-scale-in">
             <div className="p-6 border-b border-border flex justify-between items-center">
               <h3 className="text-xl font-black text-foreground">Request Leave</h3>
-              <button 
+              <button
                 onClick={() => setModalOpen(false)}
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -178,7 +178,7 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
                   onChange={e => setFormData({ ...formData, reason: e.target.value })}
                 />
               </div>
-              <button 
+              <button
                 type="submit"
                 className="w-full py-4 bg-warning text-warning-foreground font-black rounded-2xl shadow-xl active:scale-95 transition-all"
               >

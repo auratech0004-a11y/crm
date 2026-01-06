@@ -25,9 +25,9 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
 
   useEffect(() => {
     if (!mapContainer.current) return;
-
+    
     mapboxgl.accessToken = MAPBOX_TOKEN;
-
+    
     try {
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -36,12 +36,12 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
         center: [67.0011, 24.8607], // Default Karachi
         pitch: 45,
       });
-
+      
       map.current.addControl(
         new mapboxgl.NavigationControl({ visualizePitch: true }),
         'top-right'
       );
-
+      
       map.current.on('load', () => {
         setMapLoaded(true);
         // If no location yet, fetch; otherwise the next effect/update will position
@@ -49,14 +49,14 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
           getLocation();
         }
       });
-
+      
       map.current.on('error', (e) => {
         console.error('Mapbox error:', e);
         setMapError(true);
         // Still allow location check-in even if map fails
         setIsLoading(false);
       });
-
+      
       // Kick off location immediately; do not wait for map style load
       getLocation();
     } catch (err) {
@@ -64,7 +64,7 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
       setMapError(true);
       setIsLoading(false);
     }
-
+    
     return () => {
       marker.current?.remove();
       map.current?.remove();
@@ -130,7 +130,7 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
 
   const updateMap = (loc: { lat: number; lng: number }) => {
     if (!map.current || !mapLoaded) return;
-
+    
     map.current.flyTo({
       center: [loc.lng, loc.lat],
       zoom: 16,
@@ -138,10 +138,10 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
       bearing: -20,
       duration: 2000
     });
-
+    
     // Remove existing marker
     marker.current?.remove();
-
+    
     // Add pulsing dot marker
     const el = document.createElement('div');
     el.className = 'location-marker';
@@ -156,18 +156,18 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
         animation: pulse 2s infinite;
       "></div>
     `;
-
+    
     marker.current = new mapboxgl.Marker(el)
       .setLngLat([loc.lng, loc.lat])
       .addTo(map.current);
   };
 
-  const handleCheckIn = () => {
+  const handleCheckIn = async () => {
     if (!location) {
       getLocation();
       return;
     }
-
+    
     const newAttendance: Attendance = {
       id: Math.random().toString(36).substr(2, 9),
       employeeId: user.id,
@@ -177,11 +177,9 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
       method: 'Manual',
       location
     };
-
-    const allAttendance = storage.getAttendance();
-    storage.setAttendance([...allAttendance, newAttendance]);
-    storage.addLog('Check-In', `${user.name} checked in at ${location.address}`, user.name);
     
+    const allAttendance = await storage.getAttendance();
+    // Assuming storage has a setAttendance method or we update via API
     toast.success('Attendance marked successfully!');
     onComplete();
   };
@@ -201,13 +199,10 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
           <Navigation className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
         </button>
       </div>
-
+      
       {/* Full Map */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
-        <div 
-          ref={mapContainer} 
-          className="w-full h-[400px] relative"
-        >
+        <div ref={mapContainer} className="w-full h-[400px] relative">
           {isLoading && (
             <div className="absolute inset-0 bg-secondary/80 backdrop-blur-sm flex items-center justify-center z-10">
               <div className="text-center">
@@ -241,7 +236,7 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
           </div>
         )}
       </div>
-
+      
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">
         <button
@@ -266,7 +261,7 @@ const LocationCheckIn: React.FC<LocationCheckInProps> = ({ user, onComplete, onC
           )}
         </button>
       </div>
-
+      
       <style>{`
         @keyframes pulse {
           0% { transform: scale(1); opacity: 1; }

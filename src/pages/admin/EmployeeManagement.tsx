@@ -4,7 +4,6 @@ import { storage } from '@/lib/store';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserPlus, Edit2, Trash2, X, Camera, IdCard } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchEmployees, upsertEmployee, deleteEmployee as deleteEmp } from '@/integrations/supabase/service';
 
 const EmployeeManagement: React.FC = () => {
   const { user } = useAuth();
@@ -27,8 +26,8 @@ const EmployeeManagement: React.FC = () => {
     loadEmployees();
   }, []);
 
-  const loadEmployees = () => {
-    const emps = storage.getEmployees();
+  const loadEmployees = async () => {
+    const emps = await storage.getEmployees();
     setEmployees(emps.filter(e => e.role === 'EMPLOYEE'));
   };
 
@@ -49,59 +48,56 @@ const EmployeeManagement: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    const all = storage.getEmployees();
     
-    // Check for duplicate employee ID
-    if (formData.employeeId) {
-      const duplicate = all.find(emp => 
-        emp.employeeId === formData.employeeId && emp.id !== editingEmployee?.id
-      );
-      if (duplicate) {
-        toast.error('Employee ID already exists!');
-        return;
+    try {
+      if (editingEmployee) {
+        // Update existing employee
+        const updatedEmp: Employee = {
+          ...editingEmployee,
+          ...formData,
+          password: formData.password || editingEmployee.password
+        } as Employee;
+        
+        await storage.updateEmployee(updatedEmp);
+        toast.success('Employee updated successfully');
+      } else {
+        // Create new employee
+        const newEmp: Employee = {
+          id: Math.random().toString(36).substr(2, 9),
+          employeeId: formData.employeeId || undefined,
+          name: formData.name,
+          username: formData.username,
+          password: formData.password,
+          designation: formData.designation,
+          salary: formData.salary,
+          role: formData.role,
+          profilePic: formData.profilePic || undefined,
+          joiningDate: new Date().toISOString().split('T')[0],
+          status: 'active',
+          allowedModules: ['dashboard', 'attendance', 'leave', 'fines']
+        };
+        
+        await storage.addEmployee(newEmp);
+        toast.success('Employee created successfully');
       }
+      
+      loadEmployees();
+      setModalOpen(false);
+      resetForm();
+    } catch (error) {
+      toast.error('Failed to save employee');
     }
-
-    if (editingEmployee) {
-      const updatedEmp: Employee = {
-        ...editingEmployee,
-        ...formData,
-        password: formData.password || editingEmployee.password
-      } as Employee;
-      await upsertEmployee(updatedEmp);
-      storage.addLog('Update', `Employee ${updatedEmp.name} was updated`, user?.name || 'Admin');
-      toast.success('Employee updated successfully');
-    } else {
-      const newEmp: Employee = {
-        id: Math.random().toString(36).substr(2, 9),
-        employeeId: formData.employeeId || undefined,
-        name: formData.name,
-        username: formData.username,
-        password: formData.password,
-        designation: formData.designation,
-        salary: formData.salary,
-        role: formData.role,
-        profilePic: formData.profilePic || undefined,
-        joiningDate: new Date().toISOString().split('T')[0],
-        status: 'active',
-        allowedModules: ['dashboard', 'attendance', 'leave', 'payroll']
-      };
-      await upsertEmployee(newEmp);
-      storage.addLog('Create', `New employee ${formData.name} added`, user?.name || 'Admin');
-      toast.success('Employee created successfully');
-    }
-    
-    loadEmployees();
-    setModalOpen(false);
-    resetForm();
   };
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to remove ${name}?`)) {
-      await deleteEmp(id);
-      loadEmployees();
-      storage.addLog('Delete', `Employee ${name} was removed`, user?.name || 'Admin');
-      toast.success('Employee removed successfully');
+      try {
+        await storage.deleteEmployee(id);
+        loadEmployees();
+        toast.success('Employee removed successfully');
+      } catch (error) {
+        toast.error('Failed to remove employee');
+      }
     }
   };
 
@@ -142,13 +138,17 @@ const EmployeeManagement: React.FC = () => {
           <p className="text-muted-foreground text-sm">Manage your workforce</p>
         </div>
         <button 
-          onClick={() => { resetForm(); setModalOpen(true); }}
+          onClick={() => {
+            resetForm();
+            setModalOpen(true);
+          }}
           className="gradient-primary text-primary-foreground p-3 px-6 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
         >
           <UserPlus className="w-5 h-5" />
           <span className="hidden sm:inline">Add Employee</span>
         </button>
       </div>
+      
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {employees.map(emp => (
           <div key={emp.id} className="bg-card rounded-3xl border border-border p-5 shadow-card hover:shadow-lg transition-shadow relative group">
@@ -204,6 +204,7 @@ const EmployeeManagement: React.FC = () => {
           </div>
         )}
       </div>
+      
       {isModalOpen && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-card w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl animate-scale-in border border-border">
@@ -212,7 +213,7 @@ const EmployeeManagement: React.FC = () => {
                 {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
               </h3>
               <button 
-                onClick={() => setModalOpen(false)}
+                onClick={() => setModalOpen(false)} 
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-6 h-6" />
@@ -238,11 +239,11 @@ const EmployeeManagement: React.FC = () => {
                   </div>
                 </div>
                 <input 
-                  ref={fileInputRef} 
+                  ref={fileInputRef}
                   type="file" 
                   accept="image/*" 
-                  onChange={handleImageChange} 
-                  className="hidden" 
+                  onChange={handleImageChange}
+                  className="hidden"
                 />
               </div>
               
@@ -295,12 +296,19 @@ const EmployeeManagement: React.FC = () => {
               
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Designation</label>
-                <input
+                <select
                   required
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.designation}
                   onChange={e => setFormData({...formData, designation: e.target.value})}
-                />
+                >
+                  <option value="">Select Designation</option>
+                  <option value="Digital Commerce Trainee">Digital Commerce Trainee</option>
+                  <option value="Digital Commerce Probationer">Digital Commerce Probationer</option>
+                  <option value="Digital Commerce Associate">Digital Commerce Associate</option>
+                  <option value="Software Engineer">Software Engineer</option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                </select>
               </div>
               
               <div>

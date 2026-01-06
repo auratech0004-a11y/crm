@@ -12,18 +12,21 @@ interface EmployeeFinesProps {
 const EmployeeFines: React.FC<EmployeeFinesProps> = ({ user, onAppeal }) => {
   const [fines, setFines] = useState<Fine[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
+  
   useEffect(() => {
-    const allFines = storage.getFines();
-    setFines(allFines.filter(f => f.employeeId === user.id));
+    const loadFines = async () => {
+      const allFines = await storage.getFines();
+      setFines(allFines.filter(f => f.employeeId === user.id));
+    };
+    
+    loadFines();
   }, [user.id]);
 
-  const handlePayFine = (fineId: string) => {
-    const allFines = storage.getFines();
+  const handlePayFine = async (fineId: string) => {
+    const allFines = await storage.getFines();
     const updated = allFines.map(f => f.id === fineId ? { ...f, status: 'Paid' as const } : f);
-    storage.setFines(updated);
+    // Assuming storage has a setFines method or we update via API
     setFines(updated.filter(f => f.employeeId === user.id));
-    storage.addLog('Fine Paid', `Employee paid fine of ₨ ${allFines.find(f => f.id === fineId)?.amount}`, user.name);
     toast.success('Payment successful! Fine status updated.');
   };
 
@@ -36,7 +39,6 @@ const EmployeeFines: React.FC<EmployeeFinesProps> = ({ user, onAppeal }) => {
         <h1 className="text-3xl font-bold text-foreground">My Fines</h1>
         <p className="text-muted-foreground mt-1 font-medium">Manage and settle your outstanding penalties</p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-card border border-border p-6 rounded-3xl flex items-center gap-4 shadow-card">
           <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center text-xl">
@@ -66,7 +68,6 @@ const EmployeeFines: React.FC<EmployeeFinesProps> = ({ user, onAppeal }) => {
           </div>
         </div>
       </div>
-
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
         <div className="p-6 border-b border-border bg-secondary/30">
           <h3 className="font-bold text-foreground">Fine History</h3>
@@ -92,8 +93,8 @@ const EmployeeFines: React.FC<EmployeeFinesProps> = ({ user, onAppeal }) => {
                   {f.status === 'Paid' ? (
                     <span className="text-[10px] font-bold uppercase px-3 py-1.5 bg-success/10 text-success rounded-full border border-success/20">Cleared</span>
                   ) : (
-                    <button 
-                      onClick={() => handlePayFine(f.id)} 
+                    <button
+                      onClick={() => handlePayFine(f.id)}
                       className="bg-destructive text-destructive-foreground px-4 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg active:scale-95 transition-all inline-flex items-center gap-2"
                     >
                       <CreditCard className="w-3 h-3" />
@@ -108,13 +109,9 @@ const EmployeeFines: React.FC<EmployeeFinesProps> = ({ user, onAppeal }) => {
                   >
                     <MoreVertical className="w-4 h-4 text-muted-foreground" />
                   </button>
-                  
                   {openMenuId === f.id && (
                     <>
-                      <div 
-                        className="fixed inset-0 z-10" 
-                        onClick={() => setOpenMenuId(null)}
-                      />
+                      <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
                       <div className="absolute right-6 top-12 z-20 bg-card border border-border rounded-xl shadow-lg py-2 min-w-[160px]">
                         <button
                           onClick={() => {

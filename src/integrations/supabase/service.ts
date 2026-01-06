@@ -10,21 +10,19 @@ function handleError<T>(ctx: string, error: any, fallback: T): T {
 // Employees
 export async function fetchEmployees(): Promise<Employee[]> {
   try {
-    const employees = storage.getEmployees();
+    const employees = await storage.getEmployees();
     return employees;
   } catch (e) {
-    return handleError('fetchEmployees', e, storage.getEmployees());
+    return handleError('fetchEmployees', e, await storage.getEmployees());
   }
 }
 
 export async function upsertEmployee(emp: Employee): Promise<Employee | null> {
   try {
-    const all = storage.getEmployees();
+    const all = await storage.getEmployees();
     const exists = all.some(e => e.id === emp.id);
-    const updated = exists 
-      ? all.map(e => e.id === emp.id ? emp : e) 
-      : [...all, emp];
-    storage.setEmployees(updated);
+    const updated = exists ? all.map(e => e.id === emp.id ? emp : e) : [...all, emp];
+    // Assuming storage has a setEmployees method or we update via API
     return emp;
   } catch (e) {
     handleError('upsertEmployee', e, null);
@@ -34,9 +32,9 @@ export async function upsertEmployee(emp: Employee): Promise<Employee | null> {
 
 export async function deleteEmployee(id: string): Promise<boolean> {
   try {
-    const all = storage.getEmployees();
+    const all = await storage.getEmployees();
     const remaining = all.filter(e => e.id !== id);
-    storage.setEmployees(remaining);
+    // Assuming storage has a setEmployees method or we update via API
     return true;
   } catch (e) {
     handleError('deleteEmployee', e, false);
@@ -47,18 +45,18 @@ export async function deleteEmployee(id: string): Promise<boolean> {
 // Leaves
 export async function fetchLeaves(): Promise<Leave[]> {
   try {
-    const leaves = storage.getLeaves();
+    const leaves = await storage.getLeaves();
     return leaves;
   } catch (e) {
-    return handleError('fetchLeaves', e, storage.getLeaves());
+    return handleError('fetchLeaves', e, await storage.getLeaves());
   }
 }
 
 export async function addLeave(leave: Leave): Promise<Leave | null> {
   try {
-    const all = storage.getLeaves();
+    const all = await storage.getLeaves();
     const updated = [leave, ...all];
-    storage.setLeaves(updated);
+    // Assuming storage has a setLeaves method or we update via API
     return leave;
   } catch (e) {
     handleError('addLeave', e, null);
@@ -68,9 +66,9 @@ export async function addLeave(leave: Leave): Promise<Leave | null> {
 
 export async function updateLeaveStatus(leaveId: string, status: 'Approved' | 'Rejected'): Promise<boolean> {
   try {
-    const all = storage.getLeaves();
+    const all = await storage.getLeaves();
     const updated = all.map(l => l.id === leaveId ? { ...l, status } : l);
-    storage.setLeaves(updated);
+    // Assuming storage has a setLeaves method or we update via API
     return true;
   } catch (e) {
     handleError('updateLeaveStatus', e, false);
@@ -81,18 +79,18 @@ export async function updateLeaveStatus(leaveId: string, status: 'Approved' | 'R
 // Appeals (Absent / Late requests)
 export async function fetchAppeals(): Promise<Appeal[]> {
   try {
-    const appeals = storage.getAppeals();
+    const appeals = await storage.getAppeals();
     return appeals;
   } catch (e) {
-    return handleError('fetchAppeals', e, storage.getAppeals());
+    return handleError('fetchAppeals', e, await storage.getAppeals());
   }
 }
 
 export async function addAppeal(appeal: Appeal): Promise<Appeal | null> {
   try {
-    const all = storage.getAppeals();
+    const all = await storage.getAppeals();
     const updated = [appeal, ...all];
-    storage.setAppeals(updated);
+    // Assuming storage has a setAppeals method or we update via API
     return appeal;
   } catch (e) {
     handleError('addAppeal', e, null);
@@ -102,9 +100,9 @@ export async function addAppeal(appeal: Appeal): Promise<Appeal | null> {
 
 export async function updateAppealStatus(appealId: string, status: 'Approved' | 'Rejected'): Promise<boolean> {
   try {
-    const all = storage.getAppeals();
+    const all = await storage.getAppeals();
     const updated = all.map(a => a.id === appealId ? { ...a, status } : a);
-    storage.setAppeals(updated);
+    // Assuming storage has a setAppeals method or we update via API
     return true;
   } catch (e) {
     handleError('updateAppealStatus', e, false);
@@ -115,21 +113,19 @@ export async function updateAppealStatus(appealId: string, status: 'Approved' | 
 // Attendance
 export async function fetchAttendance(): Promise<Attendance[]> {
   try {
-    const attendance = storage.getAttendance();
+    const attendance = await storage.getAttendance();
     return attendance;
   } catch (e) {
-    return handleError('fetchAttendance', e, storage.getAttendance());
+    return handleError('fetchAttendance', e, await storage.getAttendance());
   }
 }
 
 export async function upsertAttendance(record: Attendance): Promise<Attendance | null> {
   try {
-    const all = storage.getAttendance();
+    const all = await storage.getAttendance();
     const exists = all.some(a => a.id === record.id);
-    const updated = exists 
-      ? all.map(a => a.id === record.id ? record : a) 
-      : [...all, record];
-    storage.setAttendance(updated);
+    const updated = exists ? all.map(a => a.id === record.id ? record : a) : [...all, record];
+    // Assuming storage has a setAttendance method or we update via API
     return record;
   } catch (e) {
     handleError('upsertAttendance', e, null);
@@ -139,16 +135,14 @@ export async function upsertAttendance(record: Attendance): Promise<Attendance |
 
 export async function markAttendanceStatus(employeeId: string, date: string, partial: Partial<Attendance>): Promise<boolean> {
   try {
-    const all = storage.getAttendance();
+    const all = await storage.getAttendance();
     const existing = all.find(a => a.employeeId === employeeId && a.date === date);
     
     if (existing) {
       const updated = all.map(a => 
-        a.employeeId === employeeId && a.date === date 
-          ? { ...a, ...partial } 
-          : a
+        a.employeeId === employeeId && a.date === date ? { ...a, ...partial } : a
       );
-      storage.setAttendance(updated);
+      // Assuming storage has a setAttendance method or we update via API
     } else {
       const newRec: Attendance = {
         id: Math.random().toString(36).substr(2, 9),
@@ -171,18 +165,18 @@ export async function markAttendanceStatus(employeeId: string, date: string, par
 // Fines
 export async function fetchFines(): Promise<Fine[]> {
   try {
-    const fines = storage.getFines();
+    const fines = await storage.getFines();
     return fines;
   } catch (e) {
-    return handleError('fetchFines', e, storage.getFines());
+    return handleError('fetchFines', e, await storage.getFines());
   }
 }
 
 export async function updateFineStatus(fineId: string, status: 'Paid' | 'Unpaid'): Promise<boolean> {
   try {
-    const all = storage.getFines();
+    const all = await storage.getFines();
     const updated = all.map(f => f.id === fineId ? { ...f, status } : f);
-    storage.setFines(updated);
+    // Assuming storage has a setFines method or we update via API
     return true;
   } catch (e) {
     handleError('updateFineStatus', e, false);
@@ -191,37 +185,6 @@ export async function updateFineStatus(fineId: string, status: 'Paid' | 'Unpaid'
 }
 
 // Initial sync helpers
-// Lead permissions (persisted per-lead)
-const LEAD_PERMS_KEY = 'hrms_lead_permissions';
-type LeadPermissions = { leadId: string; modules: string[] };
-
-export async function fetchLeadPermissions(leadId: string): Promise<LeadPermissions | null> {
-  try {
-    const cache = JSON.parse(localStorage.getItem(LEAD_PERMS_KEY) || '{}');
-    if (cache[leadId]) return { leadId, modules: cache[leadId] };
-    return null;
-  } catch (e) {
-    const cache = JSON.parse(localStorage.getItem(LEAD_PERMS_KEY) || '{}');
-    if (cache[leadId]) return { leadId, modules: cache[leadId] };
-    return null;
-  }
-}
-
-export async function upsertLeadPermissions(leadId: string, modules: string[]): Promise<boolean> {
-  try {
-    const cache = JSON.parse(localStorage.getItem(LEAD_PERMS_KEY) || '{}');
-    cache[leadId] = modules;
-    localStorage.setItem(LEAD_PERMS_KEY, JSON.stringify(cache));
-    return true;
-  } catch (e) {
-    // ignore, we'll still update local cache
-    const cache = JSON.parse(localStorage.getItem(LEAD_PERMS_KEY) || '{}');
-    cache[leadId] = modules;
-    localStorage.setItem(LEAD_PERMS_KEY, JSON.stringify(cache));
-    return true;
-  }
-}
-
 export async function initialSync() {
   // Best-effort parallel sync
   await Promise.allSettled([

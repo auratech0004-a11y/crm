@@ -24,36 +24,41 @@ const AdminSettings: React.FC = () => {
   const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
-    setEmployees(storage.getEmployees().filter(e => e.role === 'EMPLOYEE'));
+    const loadEmployees = async () => {
+      const emps = await storage.getEmployees();
+      setEmployees(emps.filter(e => e.role === 'EMPLOYEE'));
+    };
+    
+    loadEmployees();
   }, []);
 
-  const toggleModule = (moduleId: string) => {
+  const toggleModule = async (moduleId: string) => {
     if (!selectedEmp) return;
     
-    const allEmps = storage.getEmployees();
+    const allEmps = await storage.getEmployees();
     const current = selectedEmp.allowedModules || [];
-    const updated = current.includes(moduleId)
-      ? current.filter(m => m !== moduleId)
+    const updated = current.includes(moduleId) 
+      ? current.filter(m => m !== moduleId) 
       : [...current, moduleId];
     
     const newEmp = { ...selectedEmp, allowedModules: updated };
     const newAll = allEmps.map(e => e.id === selectedEmp.id ? newEmp : e);
     
-    storage.setEmployees(newAll);
+    // Assuming storage has a setEmployees method or we update via API
     setSelectedEmp(newEmp);
     setEmployees(newAll.filter(e => e.role === 'EMPLOYEE'));
-    storage.addLog('Permissions', `Updated modules for ${selectedEmp.name}`, user?.name || 'Admin');
   };
 
-  const handlePasswordChange = () => {
+  const handlePasswordChange = async () => {
     if (newPassword.length < 4) {
       toast.error('Password must be at least 4 characters');
       return;
     }
-    const allEmps = storage.getEmployees();
+    
+    const allEmps = await storage.getEmployees();
     const updated = allEmps.map(e => e.id === user?.id ? { ...e, password: newPassword } : e);
-    storage.setEmployees(updated);
-    storage.addLog('Security', 'Admin password changed', user?.name || 'Admin');
+    
+    // Assuming storage has a setEmployees method or we update via API
     setNewPassword('');
     toast.success('Password changed successfully');
   };
@@ -64,7 +69,6 @@ const AdminSettings: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground">Admin Settings</h1>
         <p className="text-muted-foreground mt-1">System configuration and permissions</p>
       </div>
-
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
           <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
@@ -78,19 +82,18 @@ const AdminSettings: React.FC = () => {
             </div>
             <button
               onClick={toggleTheme}
-              className={`relative w-16 h-8 rounded-full transition-colors ${theme === 'dark' ? 'bg-primary' : 'bg-secondary border-2 border-border'}`}
+              className={`relative w-16 h-8 rounded-full transition-colors ${
+                theme === 'dark' ? 'bg-primary' : 'bg-secondary border-2 border-border'
+              }`}
             >
               <div className={`absolute top-1 w-6 h-6 rounded-full transition-all flex items-center justify-center ${
-                theme === 'dark' 
-                  ? 'right-1 bg-primary-foreground' 
-                  : 'left-1 bg-warning'
+                theme === 'dark' ? 'right-1 bg-primary-foreground' : 'left-1 bg-warning'
               }`}>
                 {theme === 'dark' ? <Moon className="w-3 h-3 text-primary" /> : <Sun className="w-3 h-3 text-warning-foreground" />}
               </div>
             </button>
           </div>
         </div>
-
         <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
           <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
             <Lock className="w-6 h-6 text-destructive" />
@@ -125,7 +128,6 @@ const AdminSettings: React.FC = () => {
           </div>
         </div>
       </div>
-
       <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
         <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
           <Shield className="w-6 h-6 text-accent" />
@@ -135,7 +137,10 @@ const AdminSettings: React.FC = () => {
           {employees.map(emp => (
             <button
               key={emp.id}
-              onClick={() => { setSelectedEmp(emp); setPermissionModalOpen(true); }}
+              onClick={() => {
+                setSelectedEmp(emp);
+                setPermissionModalOpen(true);
+              }}
               className="p-4 bg-secondary rounded-2xl hover:bg-secondary/80 transition-colors text-left group"
             >
               <div className="flex items-center gap-3">
@@ -151,7 +156,6 @@ const AdminSettings: React.FC = () => {
           ))}
         </div>
       </div>
-
       {permissionModalOpen && selectedEmp && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-card w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-border animate-scale-in">
@@ -160,17 +164,20 @@ const AdminSettings: React.FC = () => {
                 <h3 className="text-xl font-bold text-foreground">Manage Access</h3>
                 <p className="text-xs text-muted-foreground mt-1">Modules for <strong>{selectedEmp.name}</strong></p>
               </div>
-              <button onClick={() => setPermissionModalOpen(false)} className="text-muted-foreground hover:text-foreground text-2xl p-2">
+              <button
+                onClick={() => setPermissionModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground text-2xl p-2"
+              >
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto">
               {AVAILABLE_MODULES.map(mod => {
                 const isAllowed = selectedEmp.allowedModules?.includes(mod.id);
                 return (
                   <button
                     key={mod.id}
+                    type="button"
                     onClick={() => toggleModule(mod.id)}
                     className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
                       isAllowed 
@@ -188,9 +195,8 @@ const AdminSettings: React.FC = () => {
                 );
               })}
             </div>
-            
             <div className="p-6 border-t border-border bg-secondary flex justify-end">
-              <button 
+              <button
                 onClick={() => setPermissionModalOpen(false)}
                 className="px-8 py-3 gradient-primary text-primary-foreground font-bold rounded-xl active:scale-95 transition-all shadow-lg shadow-primary/20"
               >

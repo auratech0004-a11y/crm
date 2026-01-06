@@ -3,10 +3,23 @@ import { storage } from '@/lib/store';
 import { MapPin } from 'lucide-react';
 
 const AdminAttendance: React.FC = () => {
-  const employees = storage.getEmployees().filter(e => e.role === 'EMPLOYEE');
-  const attendance = storage.getAttendance();
-  const today = new Date().toISOString().split('T')[0];
+  const [employees, setEmployees] = React.useState<any[]>([]);
+  const [attendance, setAttendance] = React.useState<any[]>([]);
+  
+  React.useEffect(() => {
+    const loadData = async () => {
+      const emps = await storage.getEmployees();
+      const att = await storage.getAttendance();
+      
+      setEmployees(emps.filter(e => e.role === 'EMPLOYEE'));
+      setAttendance(att);
+    };
+    
+    loadData();
+  }, []);
 
+  const today = new Date().toISOString().split('T')[0];
+  
   const getRecordForEmployee = (empId: string) => {
     return attendance.find(a => a.employeeId === empId && a.date === today);
   };

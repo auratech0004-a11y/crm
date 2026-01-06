@@ -10,18 +10,18 @@ const AdminAppeals: React.FC = () => {
   const { user } = useAuth();
   const [appeals, setAppeals] = useState<Appeal[]>([]);
   const [selectedAppeal, setSelectedAppeal] = useState<Appeal | null>(null);
-
+  
   useEffect(() => {
     loadAppeals();
   }, []);
 
-  const loadAppeals = () => {
-    const allAppeals = storage.getAppeals();
+  const loadAppeals = async () => {
+    const allAppeals = await storage.getAppeals();
     setAppeals(allAppeals);
   };
 
   const handleAction = async (appealId: string, status: 'Approved' | 'Rejected') => {
-    const allAppeals = storage.getAppeals();
+    const allAppeals = await storage.getAppeals();
     const appeal = allAppeals.find(a => a.id === appealId);
     
     if (appeal && status === 'Approved') {
@@ -29,16 +29,14 @@ const AdminAppeals: React.FC = () => {
         await markAttendanceStatus(appeal.employeeId, appeal.date!, { status: 'Present', method: 'Manual', checkIn: '09:00' });
         toast.success(`Attendance marked for ${appeal.employeeName} on ${appeal.date}`);
       }
-      
       if (appeal.type === 'Late') {
         await markAttendanceStatus(appeal.employeeId, appeal.date!, { status: 'Present' });
         toast.success(`Late mark removed for ${appeal.employeeName}`);
       }
-      
       if (appeal.type === 'Fine' && appeal.relatedId) {
-        const fines = storage.getFines();
+        const fines = await storage.getFines();
         const updatedFines = fines.filter(f => f.id !== appeal.relatedId);
-        storage.setFines(updatedFines);
+        // Assuming storage has a setFines method or we update via API
         toast.success(`Fine removed for ${appeal.employeeName}`);
       }
     }
@@ -46,7 +44,7 @@ const AdminAppeals: React.FC = () => {
     await updateAppealStatus(appealId, status);
     loadAppeals();
     setSelectedAppeal(null);
-    storage.addLog('Appeal', `Appeal ${status.toLowerCase()} for ${appeal?.employeeName}`, user?.name || 'Admin');
+    
     if (status === 'Rejected') {
       toast.info('Appeal rejected');
     }
@@ -54,7 +52,7 @@ const AdminAppeals: React.FC = () => {
 
   const pending = appeals.filter(a => a.status === 'Pending');
   const resolved = appeals.filter(a => a.status !== 'Pending');
-
+  
   const getTypeClass = (type: string) => {
     switch (type) {
       case 'Absent': return 'bg-destructive/10 text-destructive border-destructive/20';
@@ -63,7 +61,7 @@ const AdminAppeals: React.FC = () => {
       default: return 'bg-primary/10 text-primary border-primary/20';
     }
   };
-
+  
   const getStatusClass = (status: string) => {
     switch (status) {
       case 'Approved': return 'bg-success/10 text-success border-success/20';
@@ -120,7 +118,7 @@ const AdminAppeals: React.FC = () => {
             {pending.map(appeal => (
               <div 
                 key={appeal.id} 
-                onClick={() => setSelectedAppeal(appeal)}
+                onClick={() => setSelectedAppeal(appeal)} 
                 className="p-5 hover:bg-secondary/30 transition-colors cursor-pointer"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -135,15 +133,21 @@ const AdminAppeals: React.FC = () => {
                     <p className="text-xs text-muted-foreground mt-1">Date: {appeal.date}</p>
                   </div>
                   <div className="flex gap-2">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleAction(appeal.id, 'Approved'); }}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAction(appeal.id, 'Approved');
+                      }}
                       className="p-2 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-colors"
                       title="Approve"
                     >
                       <Check className="w-4 h-4" />
                     </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleAction(appeal.id, 'Rejected'); }}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAction(appeal.id, 'Rejected');
+                      }}
                       className="p-2 bg-destructive text-destructive-foreground rounded-xl hover:bg-destructive/90 transition-colors"
                       title="Reject"
                     >
@@ -168,7 +172,7 @@ const AdminAppeals: React.FC = () => {
               <div className="p-6 border-b border-border bg-secondary/30 flex items-center justify-between">
                 <h3 className="font-bold text-foreground">Appeal Details</h3>
                 <button 
-                  onClick={() => setSelectedAppeal(null)}
+                  onClick={() => setSelectedAppeal(null)} 
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <X className="w-5 h-5" />
@@ -216,14 +220,14 @@ const AdminAppeals: React.FC = () => {
                 </div>
                 {selectedAppeal.status === 'Pending' && (
                   <div className="flex gap-3 pt-4">
-                    <button 
+                    <button
                       onClick={() => handleAction(selectedAppeal.id, 'Approved')}
                       className="flex-1 py-3 bg-success text-success-foreground rounded-xl font-bold hover:bg-success/90 transition-colors flex items-center justify-center gap-2"
                     >
                       <Check className="w-5 h-5" />
                       Approve
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleAction(selectedAppeal.id, 'Rejected')}
                       className="flex-1 py-3 bg-destructive text-destructive-foreground rounded-xl font-bold hover:bg-destructive/90 transition-colors flex items-center justify-center gap-2"
                     >

@@ -7,40 +7,65 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
-  const employees = storage.getEmployees();
-  const attendance = storage.getAttendance();
-  const today = new Date().toISOString().split('T')[0];
-  const totalEmployees = employees.filter(e => e.role === 'EMPLOYEE').length;
-  const presentToday = attendance.filter(a => a.date === today && a.status === 'Present').length;
-  const absentToday = totalEmployees - presentToday;
-  const onLeave = storage.getLeaves().filter(l => l.status === 'Approved' && l.startDate <= today && l.endDate >= today).length;
+  const [stats, setStats] = React.useState({
+    totalEmployees: 0,
+    presentToday: 0,
+    absentToday: 0,
+    onLeave: 0
+  });
 
-  const stats = [
+  React.useEffect(() => {
+    const loadData = async () => {
+      const employees = await storage.getEmployees();
+      const attendance = await storage.getAttendance();
+      const leaves = await storage.getLeaves();
+      
+      const today = new Date().toISOString().split('T')[0];
+      const totalEmployees = employees.filter(e => e.role === 'EMPLOYEE').length;
+      const presentToday = attendance.filter(a => a.date === today && a.status === 'Present').length;
+      const absentToday = totalEmployees - presentToday;
+      const onLeave = leaves.filter(l => l.status === 'Approved' && l.startDate <= today && l.endDate >= today).length;
+      
+      setStats({
+        totalEmployees,
+        presentToday,
+        absentToday,
+        onLeave
+      });
+    };
+    
+    loadData();
+  }, []);
+
+  const statsData = [
     { 
       label: 'Total Employees', 
-      value: totalEmployees,
-      subValue: `${totalEmployees} active`, 
+      value: stats.totalEmployees, 
+      subValue: `${stats.totalEmployees} active`, 
       icon: Users, 
       color: 'bg-primary' 
     },
     { 
       label: 'Present Today', 
-      value: presentToday,
-      subValue: `${totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0}% attendance`, 
+      value: stats.presentToday, 
+      subValue: `${stats.totalEmployees > 0 ? Math.round((stats.presentToday / stats.totalEmployees) * 100) : 0}% attendance`, 
       icon: UserCheck, 
       color: 'bg-success' 
     },
     { 
       label: 'Absent Today', 
-      value: absentToday,
+      value: stats.absentToday, 
       subValue: 'Requires attention', 
       icon: UserX, 
       color: 'bg-destructive' 
     },
     { 
       label: 'On Leave', 
-      value: onLeave,
-      subValue: `${storage.getLeaves().filter(l => l.status === 'Pending').length} pending`, 
+      value: stats.onLeave, 
+      subValue: `${(async () => {
+        const leaves = await storage.getLeaves();
+        return leaves.filter(l => l.status === 'Pending').length;
+      })()} pending`, 
       icon: Calendar, 
       color: 'bg-warning' 
     },
@@ -60,7 +85,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
         <p className="text-muted-foreground mt-1 font-medium">Control center for A.R HR operations.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
+        {statsData.map((stat, i) => (
           <div key={i} className="bg-card border border-border p-8 rounded-3xl shadow-card flex justify-between group transition-all hover:-translate-y-1">
             <div>
               <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest">{stat.label}</p>
@@ -94,8 +119,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
           <h2 className="text-2xl font-black mb-10 text-foreground">Quick Actions</h2>
           <div className="space-y-4">
             {quickActions.map((action, i) => (
-              <button 
-                key={i} 
+              <button
+                key={i}
                 onClick={action.onClick}
                 className="w-full flex items-center gap-5 p-5 rounded-2xl bg-secondary/50 border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left group"
               >

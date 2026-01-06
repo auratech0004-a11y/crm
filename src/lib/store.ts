@@ -4,51 +4,78 @@ import { Employee, Attendance, Fine, AuditLog, Leave, Appeal } from '@/types';
 // Theme storage
 let currentTheme: 'light' | 'dark' = 'dark';
 
-// Mock data for development
+// Mock data for development - including the provided employees
 let mockEmployees: Employee[] = [
   {
-    id: '1',
-    employeeId: 'EMP-001',
-    name: 'John Doe',
-    username: 'johndoe',
-    role: 'EMPLOYEE',
-    salary: 50000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2023-01-15',
+    id: 'admin-1',
+    employeeId: 'ADMIN-001',
+    name: 'A.R HR Admin',
+    username: 'admin',
+    role: 'ADMIN',
+    salary: 0,
+    designation: 'Super Admin',
+    joiningDate: '2023-01-01',
     status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
+    allowedModules: ['dashboard', 'employees', 'attendance', 'leave', 'fines', 'payroll', 'settings', 'lead', 'appeals'],
     profilePic: '',
-    phone: '123-456-7890',
-    email: 'john@example.com',
-    address: '123 Main St, City',
+    phone: '',
+    email: 'admin@arhr.com',
+    address: '',
     leadId: null
   },
   {
-    id: '2',
+    id: 'emp-1',
+    employeeId: 'EMP-001',
+    name: 'Babar Azam',
+    username: 'babar',
+    role: 'EMPLOYEE',
+    salary: 45000,
+    designation: 'Graphic Designer',
+    joiningDate: '2024-01-15',
+    status: 'active',
+    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
+    profilePic: '',
+    phone: '0300-1234567',
+    email: 'babar@arhr.com',
+    address: '',
+    leadId: null
+  },
+  {
+    id: 'emp-2',
     employeeId: 'EMP-002',
-    name: 'Jane Smith',
-    username: 'janesmith',
+    name: 'Sara Ahmed',
+    username: 'sara',
     role: 'EMPLOYEE',
     salary: 55000,
-    designation: 'Digital Commerce Associate',
-    joiningDate: '2023-02-20',
+    designation: 'UI/UX Designer',
+    joiningDate: '2024-02-01',
     status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
+    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
     profilePic: '',
-    phone: '098-765-4321',
-    email: 'jane@example.com',
-    address: '456 Oak Ave, City',
+    phone: '0301-2345678',
+    email: 'sara@arhr.com',
+    address: '',
     leadId: null
   }
 ];
 
 const mockAttendance: Attendance[] = [
   {
-    id: '1',
-    employeeId: '1',
-    date: '2023-05-01',
+    id: 'att-1',
+    employeeId: 'emp-1',
+    date: '2024-01-15',
     checkIn: '09:00',
     checkOut: '18:00',
+    status: 'Present',
+    method: 'Manual',
+    location: null
+  },
+  {
+    id: 'att-2',
+    employeeId: 'emp-2',
+    date: '2024-02-01',
+    checkIn: '09:15',
+    checkOut: '17:45',
     status: 'Present',
     method: 'Manual',
     location: null
@@ -57,56 +84,56 @@ const mockAttendance: Attendance[] = [
 
 const mockFines: Fine[] = [
   {
-    id: '1',
-    employeeId: '1',
+    id: 'fine-1',
+    employeeId: 'emp-1',
     amount: 100,
     reason: 'Late arrival',
-    date: '2023-05-01',
+    date: '2024-01-20',
     status: 'Unpaid'
   }
 ];
 
 const mockLeaves: Leave[] = [
   {
-    id: '1',
-    employeeId: '1',
-    employeeName: 'John Doe',
+    id: 'leave-1',
+    employeeId: 'emp-1',
+    employeeName: 'Babar Azam',
     type: 'Annual',
-    startDate: '2023-06-01',
-    endDate: '2023-06-05',
-    reason: 'Vacation',
+    startDate: '2024-03-01',
+    endDate: '2024-03-05',
+    reason: 'Family vacation',
     status: 'Approved',
-    requestDate: '2023-05-15'
+    requestDate: '2024-02-15'
   }
 ];
 
 const mockAppeals: Appeal[] = [
   {
-    id: '1',
-    employeeId: '1',
-    employeeName: 'John Doe',
+    id: 'appeal-1',
+    employeeId: 'emp-1',
+    employeeName: 'Babar Azam',
     type: 'Late',
     reason: 'Traffic delay',
     message: 'Got stuck in traffic',
     status: 'Pending',
-    date: '2023-05-01',
-    appealDate: '2023-05-02',
-    relatedId: '1'
+    date: '2024-01-20',
+    appealDate: '2024-01-21',
+    relatedId: 'fine-1'
   }
 ];
 
 const mockPayrollStatus: Record<string, string> = {
-  '1': 'Paid',
-  '2': 'Pending'
+  'emp-1': 'Paid',
+  'emp-2': 'Pending'
 };
 
 const mockLogs: AuditLog[] = [
   {
-    id: '1',
+    id: 'log-1',
     action: 'Login',
-    details: 'User logged in',
-    user: 'John Doe',
-    timestamp: '2023-05-01T09:00:00Z'
+    details: 'Admin logged in',
+    user: 'A.R HR Admin',
+    timestamp: '2024-01-01T09:00:00Z'
   }
 ];
 

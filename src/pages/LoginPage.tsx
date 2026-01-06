@@ -3,15 +3,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Users, User, Lock, AlertCircle } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('admin');
+  const [password, setPassword] = useState('123');
   const [error, setError] = useState('');
   const { login } = useAuth();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
     if (!login(username, password)) {
       setError('Invalid username or password');
     }
@@ -32,7 +31,6 @@ const LoginPage: React.FC = () => {
             <p className="text-primary-foreground/80 mt-2">Professional HR & Admin CRM</p>
           </div>
         </div>
-
         <form onSubmit={handleLogin} className="p-8 space-y-6">
           {error && (
             <div className="bg-destructive/10 text-destructive p-4 rounded-xl text-sm border border-destructive/20 flex items-center gap-3 animate-slide-up">
@@ -40,7 +38,6 @@ const LoginPage: React.FC = () => {
               {error}
             </div>
           )}
-
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">Username</label>
             <div className="relative">
@@ -57,7 +54,6 @@ const LoginPage: React.FC = () => {
               />
             </div>
           </div>
-
           <div>
             <label className="block text-sm font-semibold text-foreground mb-2">Password</label>
             <div className="relative">
@@ -74,18 +70,17 @@ const LoginPage: React.FC = () => {
               />
             </div>
           </div>
-
           <button
             type="submit"
             className="w-full py-4 gradient-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 active:scale-[0.98] transition-all shadow-lg shadow-primary/30"
           >
             Login to Workspace
           </button>
-
           <div className="text-center text-sm text-muted-foreground">
             <p>Demo accounts:</p>
             <p className="mt-1"><strong>Admin:</strong> admin / 123</p>
             <p><strong>Employee:</strong> babar / 12345678</p>
+            <p><strong>Employee:</strong> sara / 12345678</p>
           </div>
         </form>
       </div>

@@ -68,7 +68,6 @@ const EmployeeManagement: React.FC = () => {
         ...formData,
         password: formData.password || editingEmployee.password
       } as Employee;
-      
       await upsertEmployee(updatedEmp);
       storage.addLog('Update', `Employee ${updatedEmp.name} was updated`, user?.name || 'Admin');
       toast.success('Employee updated successfully');
@@ -85,14 +84,13 @@ const EmployeeManagement: React.FC = () => {
         profilePic: formData.profilePic || undefined,
         joiningDate: new Date().toISOString().split('T')[0],
         status: 'active',
-        allowedModules: ['dashboard', 'attendance', 'leave', 'fines']
+        allowedModules: ['dashboard', 'attendance', 'leave', 'payroll']
       };
-      
       await upsertEmployee(newEmp);
       storage.addLog('Create', `New employee ${formData.name} added`, user?.name || 'Admin');
       toast.success('Employee created successfully');
     }
-
+    
     loadEmployees();
     setModalOpen(false);
     resetForm();
@@ -146,20 +144,14 @@ const EmployeeManagement: React.FC = () => {
         <button 
           onClick={() => { resetForm(); setModalOpen(true); }}
           className="gradient-primary text-primary-foreground p-3 px-6 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
-          data-testid="add-employee-btn"
         >
           <UserPlus className="w-5 h-5" />
           <span className="hidden sm:inline">Add Employee</span>
         </button>
       </div>
-
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {employees.map(emp => (
-          <div 
-            key={emp.id} 
-            className="bg-card rounded-3xl border border-border p-5 shadow-card hover:shadow-lg transition-shadow relative group"
-            data-testid={`employee-card-${emp.id}`}
-          >
+          <div key={emp.id} className="bg-card rounded-3xl border border-border p-5 shadow-card hover:shadow-lg transition-shadow relative group">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-xl overflow-hidden">
                 {emp.profilePic ? (
@@ -182,14 +174,12 @@ const EmployeeManagement: React.FC = () => {
                 <button 
                   onClick={() => openEdit(emp)}
                   className="p-2 bg-primary/10 text-primary rounded-lg text-sm hover:bg-primary/20"
-                  data-testid={`edit-${emp.id}`}
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button 
                   onClick={() => handleDelete(emp.id, emp.name)}
                   className="p-2 bg-destructive/10 text-destructive rounded-lg text-sm hover:bg-destructive/20"
-                  data-testid={`delete-${emp.id}`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -214,7 +204,6 @@ const EmployeeManagement: React.FC = () => {
           </div>
         )}
       </div>
-
       {isModalOpen && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-card w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl animate-scale-in border border-border">
@@ -223,7 +212,7 @@ const EmployeeManagement: React.FC = () => {
                 {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
               </h3>
               <button 
-                onClick={() => setModalOpen(false)} 
+                onClick={() => setModalOpen(false)}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-6 h-6" />
@@ -256,7 +245,7 @@ const EmployeeManagement: React.FC = () => {
                   className="hidden" 
                 />
               </div>
-
+              
               {/* Employee ID */}
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase flex items-center gap-1">
@@ -268,10 +257,9 @@ const EmployeeManagement: React.FC = () => {
                   value={formData.employeeId}
                   onChange={e => setFormData({...formData, employeeId: e.target.value})}
                   placeholder="e.g., EMP-001"
-                  data-testid="employee-id-input"
                 />
               </div>
-
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Full Name</label>
@@ -280,7 +268,6 @@ const EmployeeManagement: React.FC = () => {
                     className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
-                    data-testid="name-input"
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
@@ -290,11 +277,10 @@ const EmployeeManagement: React.FC = () => {
                     className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                     value={formData.username}
                     onChange={e => setFormData({...formData, username: e.target.value})}
-                    data-testid="username-input"
                   />
                 </div>
               </div>
-
+              
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Password</label>
                 <input
@@ -304,10 +290,9 @@ const EmployeeManagement: React.FC = () => {
                   value={formData.password}
                   onChange={e => setFormData({...formData, password: e.target.value})}
                   placeholder={editingEmployee ? 'Leave empty to keep current' : ''}
-                  data-testid="password-input"
                 />
               </div>
-
+              
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Designation</label>
                 <input
@@ -315,10 +300,9 @@ const EmployeeManagement: React.FC = () => {
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.designation}
                   onChange={e => setFormData({...formData, designation: e.target.value})}
-                  data-testid="designation-input"
                 />
               </div>
-
+              
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Salary (PKR)</label>
                 <input
@@ -327,10 +311,9 @@ const EmployeeManagement: React.FC = () => {
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.salary}
                   onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})}
-                  data-testid="salary-input"
                 />
               </div>
-
+              
               <div className="pt-4 flex gap-3">
                 <button 
                   type="button" 
@@ -342,7 +325,6 @@ const EmployeeManagement: React.FC = () => {
                 <button 
                   type="submit"
                   className="flex-1 py-3.5 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20"
-                  data-testid="save-employee-btn"
                 >
                   {editingEmployee ? 'Save Changes' : 'Create Account'}
                 </button>

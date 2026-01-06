@@ -79,10 +79,11 @@ const LoginPage: React.FC = () => {
           <div className="text-center text-sm text-muted-foreground">
             <p>Demo accounts:</p>
             <p className="mt-1"><strong>Admin:</strong> admin / admin</p>
-            <p><strong>Employee:</strong> naveed / naveed</p>
-            <p><strong>Employee:</strong> zeeshan / zeeshan</p>
-            <p><strong>Employee:</strong> usman / usman</p>
-            <p className="mt-1 text-xs">(And 7 more employees with username/password same as username)</p>
+            <p><strong>Employee:</strong> AT-0001 / AT-0001</p>
+            <p><strong>Employee:</strong> AT-0002 / AT-0002</p>
+            <p><strong>Employee:</strong> AT-0003 / AT-0003</p>
+            <p><strong>Employee:</strong> AT-0004 / AT-0004</p>
+            <p><strong>Employee:</strong> AT-0005 / AT-0005</p>
           </div>
         </form>
       </div>

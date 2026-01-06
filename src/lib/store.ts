@@ -11,6 +11,7 @@ let mockEmployees: Employee[] = [
     employeeId: 'ADMIN-001',
     name: 'A.R HR Admin',
     username: 'admin',
+    password: 'admin', // Set password to username
     role: 'ADMIN',
     salary: 0,
     designation: 'Super Admin',
@@ -28,6 +29,7 @@ let mockEmployees: Employee[] = [
     employeeId: 'EMP-001',
     name: 'Babar Azam',
     username: 'babar',
+    password: 'babar', // Set password to username
     role: 'EMPLOYEE',
     salary: 45000,
     designation: 'Graphic Designer',
@@ -45,6 +47,7 @@ let mockEmployees: Employee[] = [
     employeeId: 'EMP-002',
     name: 'Sara Ahmed',
     username: 'sara',
+    password: 'sara', // Set password to username
     role: 'EMPLOYEE',
     salary: 55000,
     designation: 'UI/UX Designer',
@@ -137,6 +140,14 @@ const mockLogs: AuditLog[] = [
   }
 ];
 
+// Mock settings for office timing
+let mockSettings = {
+  officeStartTime: '09:00',
+  officeEndTime: '18:00',
+  lateFineAmount: 100,
+  halfDayHours: 4
+};
+
 export const storage = {
   // Theme
   getTheme: (): 'light' | 'dark' => {
@@ -144,6 +155,66 @@ export const storage = {
   },
   setTheme: (theme: 'light' | 'dark'): void => {
     currentTheme = theme;
+  },
+
+  // Settings
+  getSettings: async () => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
+          !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+        return mockSettings;
+      }
+      
+      // Fetch from Supabase
+      const { data, error } = await supabase.from('settings').select('*').single();
+      if (error) throw error;
+      
+      return {
+        officeStartTime: data.office_start_time,
+        officeEndTime: data.office_end_time,
+        lateFineAmount: data.late_fine_amount,
+        halfDayHours: data.half_day_hours
+      };
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      return mockSettings;
+    }
+  },
+  
+  updateSettings: async (settings: any) => {
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
+          !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+        // Update mock settings
+        mockSettings = {
+          officeStartTime: settings.officeStartTime || mockSettings.officeStartTime,
+          officeEndTime: settings.officeEndTime || mockSettings.officeEndTime,
+          lateFineAmount: settings.lateFineAmount !== undefined ? settings.lateFineAmount : mockSettings.lateFineAmount,
+          halfDayHours: settings.halfDayHours !== undefined ? settings.halfDayHours : mockSettings.halfDayHours
+        };
+        return true;
+      }
+      
+      // Update in Supabase
+      const { error } = await supabase.from('settings').update({
+        office_start_time: settings.officeStartTime,
+        office_end_time: settings.officeEndTime,
+        late_fine_amount: settings.lateFineAmount,
+        half_day_hours: settings.halfDayHours
+      }).eq('id', 'settings');
+      
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      return false;
+    }
   },
 
   // Employees
@@ -168,6 +239,7 @@ export const storage = {
         employeeId: emp.employee_id,
         name: emp.name,
         username: emp.username,
+        password: emp.password,
         role: emp.role,
         salary: emp.salary,
         designation: emp.designation,
@@ -208,7 +280,7 @@ export const storage = {
       console.error('Error updating employees:', error);
     }
   },
-
+  
   addEmployee: async (employee: Employee): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -228,6 +300,7 @@ export const storage = {
         employee_id: employee.employeeId,
         name: employee.name,
         username: employee.username,
+        password: employee.password,
         role: employee.role,
         salary: employee.salary,
         designation: employee.designation,
@@ -248,7 +321,7 @@ export const storage = {
       return false;
     }
   },
-
+  
   updateEmployee: async (employee: Employee): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -267,6 +340,7 @@ export const storage = {
         employee_id: employee.employeeId,
         name: employee.name,
         username: employee.username,
+        password: employee.password,
         role: employee.role,
         salary: employee.salary,
         designation: employee.designation,
@@ -287,7 +361,7 @@ export const storage = {
       return false;
     }
   },
-
+  
   deleteEmployee: async (id: string): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -303,7 +377,6 @@ export const storage = {
       
       // Delete from Supabase
       const { error } = await supabase.from('employees').delete().eq('id', id);
-      
       if (error) throw error;
       return true;
     } catch (error) {
@@ -506,7 +579,7 @@ export const storage = {
       console.error('Error adding log:', error);
     }
   },
-
+  
   getLogs: async (): Promise<AuditLog[]> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -524,7 +597,6 @@ export const storage = {
         .select('*')
         .order('timestamp', { ascending: false })
         .limit(100);
-        
       if (error) throw error;
       
       return data.map((log: any) => ({
@@ -560,7 +632,6 @@ export const storage = {
       data.forEach((item: any) => {
         status[item.employee_id] = item.status;
       });
-      
       return status;
     } catch (error) {
       console.error('Error fetching payroll status:', error);

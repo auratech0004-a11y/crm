@@ -57,10 +57,13 @@ const EmployeeManagement: React.FC = () => {
           password: formData.password || editingEmployee.password
         } as Employee;
         
-        const allEmps = await storage.getEmployees();
-        const newAll = allEmps.map(e => e.id === updatedEmp.id ? updatedEmp : e);
-        storage.setEmployees(newAll.filter(e => e.role === 'EMPLOYEE'));
-        toast.success('Employee updated successfully');
+        const success = await storage.updateEmployee(updatedEmp);
+        if (success) {
+          toast.success('Employee updated successfully');
+          loadEmployees();
+        } else {
+          toast.error('Failed to update employee');
+        }
       } else {
         // Create new employee
         const newEmp: Employee = {
@@ -68,7 +71,7 @@ const EmployeeManagement: React.FC = () => {
           employeeId: formData.employeeId || undefined,
           name: formData.name,
           username: formData.username,
-          password: formData.password,
+          password: formData.password || formData.username, // Set password to username if not provided
           designation: formData.designation,
           salary: formData.salary,
           role: formData.role,
@@ -78,12 +81,15 @@ const EmployeeManagement: React.FC = () => {
           allowedModules: ['dashboard', 'attendance', 'leave', 'fines']
         };
         
-        const allEmps = await storage.getEmployees();
-        const newAll = [...allEmps, newEmp];
-        storage.setEmployees(newAll);
-        toast.success('Employee created successfully');
+        const success = await storage.addEmployee(newEmp);
+        if (success) {
+          toast.success('Employee created successfully');
+          loadEmployees();
+        } else {
+          toast.error('Failed to create employee');
+        }
       }
-      loadEmployees();
+      
       setModalOpen(false);
       resetForm();
     } catch (error) {
@@ -94,11 +100,13 @@ const EmployeeManagement: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to remove ${name}?`)) {
       try {
-        const allEmps = await storage.getEmployees();
-        const newAll = allEmps.filter(e => e.id !== id);
-        storage.setEmployees(newAll);
-        loadEmployees();
-        toast.success('Employee removed successfully');
+        const success = await storage.deleteEmployee(id);
+        if (success) {
+          loadEmployees();
+          toast.success('Employee removed successfully');
+        } else {
+          toast.error('Failed to remove employee');
+        }
       } catch (error) {
         toast.error('Failed to remove employee');
       }
@@ -141,18 +149,23 @@ const EmployeeManagement: React.FC = () => {
           <h2 className="text-2xl font-bold text-foreground">Team Directory</h2>
           <p className="text-muted-foreground text-sm">Manage your workforce</p>
         </div>
-        <button 
-          onClick={() => { resetForm(); setModalOpen(true); }}
+        <button
+          onClick={() => {
+            resetForm();
+            setModalOpen(true);
+          }}
           className="gradient-primary text-primary-foreground p-3 px-6 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
         >
           <UserPlus className="w-5 h-5" />
           <span className="hidden sm:inline">Add Employee</span>
         </button>
       </div>
-      
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {employees.map(emp => (
-          <div key={emp.id} className="bg-card rounded-3xl border border-border p-5 shadow-card hover:shadow-lg transition-shadow relative group">
+        {employees.map((emp) => (
+          <div
+            key={emp.id}
+            className="bg-card rounded-3xl border border-border p-5 shadow-card hover:shadow-lg transition-shadow relative group"
+          >
             <div className="flex items-center gap-4 mb-4">
               <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-xl overflow-hidden">
                 {emp.profilePic ? (
@@ -172,13 +185,13 @@ const EmployeeManagement: React.FC = () => {
                 )}
               </div>
               <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
+                <button
                   onClick={() => openEdit(emp)}
                   className="p-2 bg-primary/10 text-primary rounded-lg text-sm hover:bg-primary/20"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => handleDelete(emp.id, emp.name)}
                   className="p-2 bg-destructive/10 text-destructive rounded-lg text-sm hover:bg-destructive/20"
                 >
@@ -205,7 +218,6 @@ const EmployeeManagement: React.FC = () => {
           </div>
         )}
       </div>
-      
       {isModalOpen && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-card w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl animate-scale-in border border-border">
@@ -213,7 +225,7 @@ const EmployeeManagement: React.FC = () => {
               <h3 className="text-xl font-bold text-foreground">
                 {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
               </h3>
-              <button 
+              <button
                 onClick={() => setModalOpen(false)}
                 className="text-muted-foreground hover:text-foreground"
               >
@@ -223,7 +235,7 @@ const EmployeeManagement: React.FC = () => {
             <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto max-h-[80vh]">
               {/* Profile Picture */}
               <div className="flex justify-center mb-4">
-                <div 
+                <div
                   onClick={() => fileInputRef.current?.click()}
                   className="relative w-24 h-24 rounded-2xl bg-secondary border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer overflow-hidden group"
                 >
@@ -239,12 +251,12 @@ const EmployeeManagement: React.FC = () => {
                     <Camera className="w-6 h-6 text-primary-foreground" />
                   </div>
                 </div>
-                <input 
-                  ref={fileInputRef} 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={handleImageChange} 
-                  className="hidden" 
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
                 />
               </div>
               
@@ -257,7 +269,7 @@ const EmployeeManagement: React.FC = () => {
                 <input
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.employeeId}
-                  onChange={e => setFormData({...formData, employeeId: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
                   placeholder="e.g., EMP-001"
                 />
               </div>
@@ -269,7 +281,7 @@ const EmployeeManagement: React.FC = () => {
                     required
                     className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                     value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
                 <div className="col-span-2 sm:col-span-1">
@@ -278,21 +290,28 @@ const EmployeeManagement: React.FC = () => {
                     required
                     className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                     value={formData.username}
-                    onChange={e => setFormData({...formData, username: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   />
                 </div>
               </div>
               
               <div>
-                <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Password</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">
+                  {editingEmployee ? 'New Password (optional)' : 'Password'}
+                </label>
                 <input
-                  required={!editingEmployee}
                   type="password"
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.password}
-                  onChange={e => setFormData({...formData, password: e.target.value})}
-                  placeholder={editingEmployee ? 'Leave empty to keep current' : ''}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder={editingEmployee ? 'Leave empty to keep current' : 'Enter password'}
+                  {...(!editingEmployee && { required: true })}
                 />
+                {!editingEmployee && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Note: If left blank, password will be set to username
+                  </p>
+                )}
               </div>
               
               <div>
@@ -301,7 +320,7 @@ const EmployeeManagement: React.FC = () => {
                   required
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.designation}
-                  onChange={e => setFormData({...formData, designation: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
                 >
                   <option value="">Select Designation</option>
                   <option value="Digital Commerce Trainee">Digital Commerce Trainee</option>
@@ -309,6 +328,9 @@ const EmployeeManagement: React.FC = () => {
                   <option value="Digital Commerce Associate">Digital Commerce Associate</option>
                   <option value="Software Engineer">Software Engineer</option>
                   <option value="UI/UX Designer">UI/UX Designer</option>
+                  <option value="Graphic Designer">Graphic Designer</option>
+                  <option value="HR Manager">HR Manager</option>
+                  <option value="Finance Officer">Finance Officer</option>
                 </select>
               </div>
               
@@ -319,19 +341,19 @@ const EmployeeManagement: React.FC = () => {
                   type="number"
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
                   value={formData.salary}
-                  onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})}
+                  onChange={(e) => setFormData({ ...formData, salary: parseInt(e.target.value) || 0 })}
                 />
               </div>
               
               <div className="pt-4 flex gap-3">
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setModalOpen(false)}
                   className="flex-1 py-3.5 font-bold text-muted-foreground border border-border rounded-xl hover:bg-secondary"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   type="submit"
                   className="flex-1 py-3.5 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20"
                 >

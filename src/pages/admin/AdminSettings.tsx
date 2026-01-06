@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { storage } from '@/lib/store';
 import { Employee } from '@/types';
-import { Moon, Sun, Shield, Lock, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Moon, Sun, Shield, Lock, Eye, EyeOff, Check, X, Clock, Building } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AVAILABLE_MODULES = [
@@ -22,6 +22,15 @@ const AdminSettings: React.FC = () => {
   const [permissionModalOpen, setPermissionModalOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  
+  // Office timing settings
+  const [settings, setSettings] = useState({
+    officeStartTime: '09:00',
+    officeEndTime: '18:00',
+    lateFineAmount: 100,
+    halfDayHours: 4
+  });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadEmployees = async () => {
@@ -29,7 +38,14 @@ const AdminSettings: React.FC = () => {
       setEmployees(emps.filter(e => e.role === 'EMPLOYEE'));
     };
     
+    const loadSettings = async () => {
+      const settingsData = await storage.getSettings();
+      setSettings(settingsData);
+      setLoading(false);
+    };
+    
     loadEmployees();
+    loadSettings();
   }, []);
 
   const toggleModule = async (moduleId: string) => {
@@ -37,14 +53,18 @@ const AdminSettings: React.FC = () => {
     
     const allEmps = await storage.getEmployees();
     const current = selectedEmp.allowedModules || [];
-    const updated = current.includes(moduleId) 
-      ? current.filter(m => m !== moduleId) 
+    const updated = current.includes(moduleId)
+      ? current.filter(m => m !== moduleId)
       : [...current, moduleId];
+      
+    const newEmp = {
+      ...selectedEmp,
+      allowedModules: updated
+    };
     
-    const newEmp = { ...selectedEmp, allowedModules: updated };
     const newAll = allEmps.map(e => e.id === selectedEmp.id ? newEmp : e);
+    storage.setEmployees(newAll);
     
-    // Assuming storage has a setEmployees method or we update via API
     setSelectedEmp(newEmp);
     setEmployees(newAll.filter(e => e.role === 'EMPLOYEE'));
   };
@@ -57,11 +77,28 @@ const AdminSettings: React.FC = () => {
     
     const allEmps = await storage.getEmployees();
     const updated = allEmps.map(e => e.id === user?.id ? { ...e, password: newPassword } : e);
+    storage.setEmployees(updated);
     
-    // Assuming storage has a setEmployees method or we update via API
     setNewPassword('');
     toast.success('Password changed successfully');
   };
+  
+  const handleSaveSettings = async () => {
+    const success = await storage.updateSettings(settings);
+    if (success) {
+      toast.success('Settings saved successfully');
+    } else {
+      toast.error('Failed to save settings');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-slide-up">
@@ -69,6 +106,7 @@ const AdminSettings: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground">Admin Settings</h1>
         <p className="text-muted-foreground mt-1">System configuration and permissions</p>
       </div>
+      
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
           <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
@@ -86,14 +124,21 @@ const AdminSettings: React.FC = () => {
                 theme === 'dark' ? 'bg-primary' : 'bg-secondary border-2 border-border'
               }`}
             >
-              <div className={`absolute top-1 w-6 h-6 rounded-full transition-all flex items-center justify-center ${
-                theme === 'dark' ? 'right-1 bg-primary-foreground' : 'left-1 bg-warning'
-              }`}>
-                {theme === 'dark' ? <Moon className="w-3 h-3 text-primary" /> : <Sun className="w-3 h-3 text-warning-foreground" />}
+              <div
+                className={`absolute top-1 w-6 h-6 rounded-full transition-all flex items-center justify-center ${
+                  theme === 'dark' ? 'right-1 bg-primary-foreground' : 'left-1 bg-warning'
+                }`}
+              >
+                {theme === 'dark' ? (
+                  <Moon className="w-3 h-3 text-primary" />
+                ) : (
+                  <Sun className="w-3 h-3 text-warning-foreground" />
+                )}
               </div>
             </button>
           </div>
         </div>
+        
         <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
           <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
             <Lock className="w-6 h-6 text-destructive" />
@@ -101,7 +146,9 @@ const AdminSettings: React.FC = () => {
           </h3>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">New Password</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+                New Password
+              </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -128,13 +175,75 @@ const AdminSettings: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
+        <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
+          <Building className="w-6 h-6 text-primary" />
+          Office Settings
+        </h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              Office Start Time
+            </label>
+            <input
+              type="time"
+              value={settings.officeStartTime}
+              onChange={(e) => setSettings({ ...settings, officeStartTime: e.target.value })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              Office End Time
+            </label>
+            <input
+              type="time"
+              value={settings.officeEndTime}
+              onChange={(e) => setSettings({ ...settings, officeEndTime: e.target.value })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+              Late Fine (PKR)
+            </label>
+            <input
+              type="number"
+              value={settings.lateFineAmount}
+              onChange={(e) => setSettings({ ...settings, lateFineAmount: parseInt(e.target.value) || 0 })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">
+              Half Day Hours
+            </label>
+            <input
+              type="number"
+              value={settings.halfDayHours}
+              onChange={(e) => setSettings({ ...settings, halfDayHours: parseInt(e.target.value) || 0 })}
+              className="w-full bg-secondary border-0 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary text-foreground"
+            />
+          </div>
+        </div>
+        <button
+          onClick={handleSaveSettings}
+          className="mt-6 px-8 py-3 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg active:scale-95 transition-transform"
+        >
+          Save Office Settings
+        </button>
+      </div>
+      
       <div className="bg-card border border-border rounded-3xl p-8 shadow-card">
         <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-3">
           <Shield className="w-6 h-6 text-accent" />
           Employee Permissions
         </h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {employees.map(emp => (
+          {employees.map((emp) => (
             <button
               key={emp.id}
               onClick={() => {
@@ -156,13 +265,16 @@ const AdminSettings: React.FC = () => {
           ))}
         </div>
       </div>
+      
       {permissionModalOpen && selectedEmp && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-card w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-border animate-scale-in">
             <div className="p-6 border-b border-border flex justify-between items-center bg-secondary">
               <div>
                 <h3 className="text-xl font-bold text-foreground">Manage Access</h3>
-                <p className="text-xs text-muted-foreground mt-1">Modules for <strong>{selectedEmp.name}</strong></p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Modules for <strong>{selectedEmp.name}</strong>
+                </p>
               </div>
               <button
                 onClick={() => setPermissionModalOpen(false)}
@@ -172,7 +284,7 @@ const AdminSettings: React.FC = () => {
               </button>
             </div>
             <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto">
-              {AVAILABLE_MODULES.map(mod => {
+              {AVAILABLE_MODULES.map((mod) => {
                 const isAllowed = selectedEmp.allowedModules?.includes(mod.id);
                 return (
                   <button
@@ -180,15 +292,17 @@ const AdminSettings: React.FC = () => {
                     type="button"
                     onClick={() => toggleModule(mod.id)}
                     className={`flex items-center justify-between p-4 rounded-2xl border-2 transition-all ${
-                      isAllowed 
-                        ? 'border-primary bg-primary/10 text-primary shadow-lg shadow-primary/10' 
+                      isAllowed
+                        ? 'border-primary bg-primary/10 text-primary shadow-lg shadow-primary/10'
                         : 'border-border bg-secondary text-muted-foreground opacity-70'
                     }`}
                   >
                     <span className="font-bold text-sm">{mod.label}</span>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      isAllowed ? 'border-primary bg-primary' : 'border-muted-foreground'
-                    }`}>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isAllowed ? 'border-primary bg-primary' : 'border-muted-foreground'
+                      }`}
+                    >
                       {isAllowed && <Check className="w-3 h-3 text-primary-foreground" />}
                     </div>
                   </button>

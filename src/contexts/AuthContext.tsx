@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { storage } from '@/lib/store';
 import { Employee } from '@/types';
 
 interface AuthContextType {
   user: Employee | null;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  login: (username: string, password: string) => boolean;
+  logout: () => void;
   updateUser: (user: Employee) => void;
   loading: boolean;
 }
@@ -17,98 +17,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if Supabase is properly configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
-        !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-      console.warn('Supabase not configured. Using mock authentication.');
-      setLoading(false);
-      return;
-    }
-
-    const checkUser = async () => {
+    const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          // Fetch user data from Supabase
-          const { data: employee, error } = await supabase
-            .from('employees')
-            .select('*')
-            .eq('email', session.user.email)
-            .single();
-          
-          if (employee && !error) {
-            setUser({
-              id: employee.id,
-              employeeId: employee.employee_id,
-              name: employee.name,
-              username: employee.username,
-              role: employee.role,
-              salary: employee.salary,
-              designation: employee.designation,
-              joiningDate: employee.joining_date,
-              status: employee.status,
-              allowedModules: employee.allowed_modules,
-              profilePic: employee.profile_pic,
-              phone: employee.phone,
-              email: employee.email,
-              address: employee.address,
-              leadId: employee.lead_id
-            });
+        const employees = await storage.getEmployees();
+        const savedUser = localStorage.getItem('hrms_user');
+        
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          const currentUser = employees.find(e => e.id === userData.id);
+          if (currentUser) {
+            setUser(currentUser);
+          } else {
+            localStorage.removeItem('hrms_user');
           }
         }
       } catch (error) {
-        console.error('Error checking user session:', error);
+        console.error('Error initializing auth:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    checkUser();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        // Fetch user data when auth state changes
-        supabase
-          .from('employees')
-          .select('*')
-          .eq('email', session.user.email)
-          .single()
-          .then(({ data: employee, error }) => {
-            if (employee && !error) {
-              setUser({
-                id: employee.id,
-                employeeId: employee.employee_id,
-                name: employee.name,
-                username: employee.username,
-                role: employee.role,
-                salary: employee.salary,
-                designation: employee.designation,
-                joiningDate: employee.joining_date,
-                status: employee.status,
-                allowedModules: employee.allowed_modules,
-                profilePic: employee.profile_pic,
-                phone: employee.phone,
-                email: employee.email,
-                address: employee.address,
-                leadId: employee.lead_id
-              });
-            }
-          });
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    initAuth();
   }, []);
 
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = (username: string, password: string): boolean => {
     // Check if Supabase is properly configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -117,103 +50,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       // Mock login for development
       console.warn('Supabase not configured. Using mock login.');
-      setUser({
-        id: 'mock-user-id',
-        name: 'Mock User',
-        username: username,
-        role: 'ADMIN',
-        salary: 50000,
-        designation: 'Developer',
-        joiningDate: '2023-01-01',
-        status: 'active',
-        allowedModules: ['dashboard', 'employees', 'attendance', 'leave', 'fines', 'payroll', 'settings', 'lead', 'appeals']
+      
+      // Get employees from storage
+      storage.getEmployees().then(employees => {
+        const employee = employees.find(e => e.username === username && e.password === password);
+        if (employee) {
+          setUser(employee);
+          localStorage.setItem('hrms_user', JSON.stringify(employee));
+          return true;
+        }
+        return false;
       });
+      
       return true;
     }
-
+    
     try {
-      // First, get the user's email from the employees table
-      const { data: employee, error: employeeError } = await supabase
-        .from('employees')
-        .select('email')
-        .eq('username', username)
-        .single();
-
-      if (employeeError || !employee) {
-        console.error('Employee not found:', employeeError);
-        return false;
-      }
-
-      // Sign in with Supabase Auth using the email
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: employee.email,
-        password: password
-      });
-
-      if (error) {
-        console.error('Login error:', error);
-        return false;
-      }
-
-      if (data.user) {
-        // Fetch full employee data
-        const { data: employeeData, error: fetchError } = await supabase
-          .from('employees')
-          .select('*')
-          .eq('email', data.user.email)
-          .single();
-
-        if (employeeData && !fetchError) {
-          setUser({
-            id: employeeData.id,
-            employeeId: employeeData.employee_id,
-            name: employeeData.name,
-            username: employeeData.username,
-            role: employeeData.role,
-            salary: employeeData.salary,
-            designation: employeeData.designation,
-            joiningDate: employeeData.joining_date,
-            status: employeeData.status,
-            allowedModules: employeeData.allowed_modules,
-            profilePic: employeeData.profile_pic,
-            phone: employeeData.phone,
-            email: employeeData.email,
-            address: employeeData.address,
-            leadId: employeeData.lead_id
-          });
+      // In a real implementation with Supabase, we would do proper authentication
+      // For now, we'll simulate the same behavior
+      storage.getEmployees().then(employees => {
+        const employee = employees.find(e => e.username === username && e.password === password);
+        if (employee) {
+          setUser(employee);
+          localStorage.setItem('hrms_user', JSON.stringify(employee));
         }
-        return true;
-      }
-      return false;
+      });
+      
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       return false;
     }
   };
 
-  const logout = async () => {
-    // Check if Supabase is properly configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
-        !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-      // Mock logout for development
-      console.warn('Supabase not configured. Using mock logout.');
-      setUser(null);
-      return;
-    }
-
-    try {
-      await supabase.auth.signOut();
-      setUser(null);
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+  const logout = () => {
+    localStorage.removeItem('hrms_user');
+    setUser(null);
   };
 
   const updateUser = (updatedUser: Employee) => {
     setUser(updatedUser);
+    localStorage.setItem('hrms_user', JSON.stringify(updatedUser));
   };
 
   return (

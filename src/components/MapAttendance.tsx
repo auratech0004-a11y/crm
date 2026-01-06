@@ -123,7 +123,7 @@ const MapAttendance: React.FC<MapAttendanceProps> = ({ user, onComplete, onCance
             <p className="text-muted-foreground mt-1">Mark your attendance with GPS verification</p>
           </div>
         </div>
-        
+
         <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
           <div className="w-full h-96 flex items-center justify-center bg-secondary">
             <div className="text-center">
@@ -144,14 +144,14 @@ const MapAttendance: React.FC<MapAttendanceProps> = ({ user, onComplete, onCance
           <p className="text-muted-foreground mt-1">Mark your attendance with GPS verification</p>
         </div>
       </div>
-      
+
       {/* Map Container */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
         <div className="w-full h-96 relative">
           {location ? (
-            <MapContainer 
-              center={[location.lat, location.lng]} 
-              zoom={13} 
+            <MapContainer
+              center={[location.lat, location.lng] as [number, number]}
+              zoom={13}
               style={{ height: '100%', width: '100%' }}
               className="rounded-t-3xl"
             >
@@ -159,7 +159,7 @@ const MapAttendance: React.FC<MapAttendanceProps> = ({ user, onComplete, onCance
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               />
-              <Marker position={[location.lat, location.lng]}>
+              <Marker position={[location.lat, location.lng] as [number, number]}>
                 <Popup>
                   Your Location: {location.address}
                 </Popup>
@@ -171,7 +171,7 @@ const MapAttendance: React.FC<MapAttendanceProps> = ({ user, onComplete, onCance
             </div>
           )}
         </div>
-        
+
         {/* Location Info */}
         {location && (
           <div className="p-6 border-t border-border bg-secondary/30">
@@ -190,7 +190,7 @@ const MapAttendance: React.FC<MapAttendanceProps> = ({ user, onComplete, onCance
           </div>
         )}
       </div>
-      
+
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">
         <button

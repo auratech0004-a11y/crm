@@ -3,8 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Users, User, Lock, AlertCircle } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
 
@@ -76,15 +76,6 @@ const LoginPage: React.FC = () => {
           >
             Login to Workspace
           </button>
-          <div className="text-center text-sm text-muted-foreground">
-            <p>Demo accounts:</p>
-            <p className="mt-1"><strong>Admin:</strong> admin / admin</p>
-            <p><strong>Employee:</strong> AT-0001 / AT-0001</p>
-            <p><strong>Employee:</strong> AT-0002 / AT-0002</p>
-            <p><strong>Employee:</strong> AT-0003 / AT-0003</p>
-            <p><strong>Employee:</strong> AT-0004 / AT-0004</p>
-            <p><strong>Employee:</strong> AT-0005 / AT-0005</p>
-          </div>
         </form>
       </div>
     </div>

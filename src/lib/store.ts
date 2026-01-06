@@ -113,13 +113,49 @@ let mockEmployees: Employee[] = [
     email: 'waqas.qureshi@arhr.com',
     address: '',
     leadId: null
+  },
+  {
+    id: 'emp-6',
+    employeeId: 'AT-0006',
+    name: 'Mohammad Atif',
+    username: 'AT-0006',
+    password: 'AT-0006',
+    role: 'EMPLOYEE',
+    salary: 25000,
+    designation: 'Digital Commerce Trainee',
+    joiningDate: '2024-01-01',
+    status: 'active',
+    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
+    profilePic: '',
+    phone: '0305-5678901',
+    email: 'mohammad.atif@arhr.com',
+    address: '',
+    leadId: null
+  },
+  {
+    id: 'emp-7',
+    employeeId: 'AT-0007',
+    name: 'Mohammad Rizwan',
+    username: 'AT-0007',
+    password: 'AT-0007',
+    role: 'EMPLOYEE',
+    salary: 25000,
+    designation: 'Digital Commerce Trainee',
+    joiningDate: '2024-01-01',
+    status: 'active',
+    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
+    profilePic: '',
+    phone: '0306-5678901',
+    email: 'mohammad.rizwan@arhr.com',
+    address: '',
+    leadId: null
   }
 ];
 
 // Generate attendance records for all employees from Jan 1 to Jan 6, 2026
 const generateAttendanceRecords = (): Attendance[] => {
   const attendance: Attendance[] = [];
-  const employeeIds = ['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5'];
+  const employeeIds = ['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5', 'emp-6', 'emp-7'];
   
   // Generate attendance for Jan 1 to Jan 6, 2026
   for (let day = 1; day <= 6; day++) {
@@ -214,7 +250,9 @@ const mockPayrollStatus: Record<string, string> = {
   'emp-2': 'Pending',
   'emp-3': 'Paid',
   'emp-4': 'Pending',
-  'emp-5': 'Pending'
+  'emp-5': 'Pending',
+  'emp-6': 'Pending',
+  'emp-7': 'Pending'
 };
 
 const mockLogs: AuditLog[] = [

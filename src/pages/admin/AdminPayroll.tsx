@@ -77,10 +77,11 @@ const AdminPayroll: React.FC = () => {
       'Digital Commerce Probationer',
       'Digital Commerce Associate',
     ];
+    
     const designation = allowedDesignations.includes(emp.designation) 
       ? emp.designation 
       : 'Digital Commerce Trainee';
-    
+      
     const basic = emp.salary || 0;
     // Per-day salary = Basic / 26 (rounded as per sample slip)
     const perDay = Math.round(basic / 26);
@@ -124,6 +125,7 @@ const AdminPayroll: React.FC = () => {
     const loadJsPDF = (): Promise<any> => {
       return new Promise((resolve, reject) => {
         if ((window as any).jspdf?.jsPDF) return resolve((window as any).jspdf.jsPDF);
+        
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
         script.onload = () => resolve((window as any).jspdf.jsPDF);
@@ -138,7 +140,7 @@ const AdminPayroll: React.FC = () => {
       const pad = 40;
       let y = pad;
       const right = 555; // A4 width minus right padding
-
+      
       const drawRow = (label: string, value: string | number, yPos: number, labelX = pad, valueX = 320) => {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(11);
@@ -188,6 +190,7 @@ const AdminPayroll: React.FC = () => {
       doc.text('Salary Details:', pad, y);
       y += 16;
       doc.setFont('helvetica', 'normal');
+      
       const cur = (n: number) => `₨ ${n.toLocaleString()}`;
       drawRow('Basic Salary', cur(calc.basic), y);
       y += 18;
@@ -254,6 +257,7 @@ const AdminPayroll: React.FC = () => {
           )}
         </button>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-card border border-border p-6 rounded-3xl shadow-card flex items-center gap-4">
           <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
@@ -283,6 +287,7 @@ const AdminPayroll: React.FC = () => {
           </div>
         </div>
       </div>
+
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
         <table className="w-full text-left">
           <thead className="bg-secondary">
@@ -322,6 +327,7 @@ const AdminPayroll: React.FC = () => {
                     <button 
                       onClick={() => downloadSlip(emp)}
                       className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20"
+                      data-testid={`download-slip-${emp.id}`}
                     >
                       <Download className="w-4 h-4" />
                     </button>

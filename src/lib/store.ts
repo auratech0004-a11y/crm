@@ -1,110 +1,5 @@
+import { supabase } from '@/lib/supabaseClient';
 import { Employee, Attendance, Fine, AuditLog, Leave, Appeal } from '@/types';
-
-// Mock data for development
-const mockEmployees: Employee[] = [
-  {
-    id: '1',
-    employeeId: 'EMP-001',
-    name: 'John Doe',
-    username: 'johndoe',
-    role: 'EMPLOYEE',
-    salary: 50000,
-    designation: 'Software Engineer',
-    joiningDate: '2023-01-15',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
-    profilePic: '',
-    phone: '123-456-7890',
-    email: 'john@example.com',
-    address: '123 Main St, City',
-    leadId: null
-  },
-  {
-    id: '2',
-    employeeId: 'EMP-002',
-    name: 'Jane Smith',
-    username: 'janesmith',
-    role: 'EMPLOYEE',
-    salary: 55000,
-    designation: 'UI/UX Designer',
-    joiningDate: '2023-02-20',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
-    profilePic: '',
-    phone: '098-765-4321',
-    email: 'jane@example.com',
-    address: '456 Oak Ave, City',
-    leadId: null
-  }
-];
-
-const mockAttendance: Attendance[] = [
-  {
-    id: '1',
-    employeeId: '1',
-    date: '2023-05-01',
-    checkIn: '09:00',
-    checkOut: '18:00',
-    status: 'Present',
-    method: 'Manual',
-    location: null
-  }
-];
-
-const mockFines: Fine[] = [
-  {
-    id: '1',
-    employeeId: '1',
-    amount: 100,
-    reason: 'Late arrival',
-    date: '2023-05-01',
-    status: 'Unpaid'
-  }
-];
-
-const mockLeaves: Leave[] = [
-  {
-    id: '1',
-    employeeId: '1',
-    employeeName: 'John Doe',
-    type: 'Annual',
-    startDate: '2023-06-01',
-    endDate: '2023-06-05',
-    reason: 'Vacation',
-    status: 'Approved',
-    requestDate: '2023-05-15'
-  }
-];
-
-const mockAppeals: Appeal[] = [
-  {
-    id: '1',
-    employeeId: '1',
-    employeeName: 'John Doe',
-    type: 'Late',
-    reason: 'Traffic delay',
-    message: 'Got stuck in traffic',
-    status: 'Pending',
-    date: '2023-05-01',
-    appealDate: '2023-05-02',
-    relatedId: '1'
-  }
-];
-
-const mockPayrollStatus: Record<string, string> = {
-  '1': 'Paid',
-  '2': 'Pending'
-};
-
-const mockLogs: AuditLog[] = [
-  {
-    id: '1',
-    action: 'Login',
-    details: 'User logged in',
-    user: 'John Doe',
-    timestamp: '2023-05-01T09:00:00Z'
-  }
-];
 
 // Theme storage
 let currentTheme: 'light' | 'dark' = 'dark';
@@ -127,7 +22,43 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock employees.');
-      return mockEmployees;
+      // Return mock employees for development
+      return [
+        {
+          id: '1',
+          employeeId: 'EMP-001',
+          name: 'John Doe',
+          username: 'johndoe',
+          role: 'EMPLOYEE',
+          salary: 50000,
+          designation: 'Digital Commerce Trainee',
+          joiningDate: '2023-01-15',
+          status: 'active',
+          allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
+          profilePic: '',
+          phone: '123-456-7890',
+          email: 'john@example.com',
+          address: '123 Main St, City',
+          leadId: null
+        },
+        {
+          id: '2',
+          employeeId: 'EMP-002',
+          name: 'Jane Smith',
+          username: 'janesmith',
+          role: 'EMPLOYEE',
+          salary: 55000,
+          designation: 'Digital Commerce Associate',
+          joiningDate: '2023-02-20',
+          status: 'active',
+          allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
+          profilePic: '',
+          phone: '098-765-4321',
+          email: 'jane@example.com',
+          address: '456 Oak Ave, City',
+          leadId: null
+        }
+      ];
     }
     
     // If Supabase is configured, return empty array as the real implementation is in api.ts
@@ -147,7 +78,19 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock attendance.');
-      return mockAttendance;
+      // Return mock attendance for development
+      return [
+        {
+          id: '1',
+          employeeId: '1',
+          date: new Date().toISOString().split('T')[0],
+          checkIn: '09:00',
+          checkOut: '18:00',
+          status: 'Present',
+          method: 'Manual',
+          location: null
+        }
+      ];
     }
     
     // If Supabase is configured, return empty array as the real implementation is in api.ts
@@ -165,7 +108,7 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Adding mock attendance.');
-      mockAttendance.push(attendance);
+      // In a real implementation, this would add to the database
       return true;
     }
     
@@ -182,7 +125,17 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock fines.');
-      return mockFines;
+      // Return mock fines for development
+      return [
+        {
+          id: '1',
+          employeeId: '1',
+          amount: 100,
+          reason: 'Late arrival',
+          date: new Date().toISOString().split('T')[0],
+          status: 'Unpaid'
+        }
+      ];
     }
     
     // If Supabase is configured, return empty array as the real implementation is in api.ts
@@ -202,7 +155,20 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock leaves.');
-      return mockLeaves;
+      // Return mock leaves for development
+      return [
+        {
+          id: '1',
+          employeeId: '1',
+          employeeName: 'John Doe',
+          type: 'Annual',
+          startDate: new Date(Date.now() + 86400000 * 7).toISOString().split('T')[0],
+          endDate: new Date(Date.now() + 86400000 * 10).toISOString().split('T')[0],
+          reason: 'Vacation',
+          status: 'Approved',
+          requestDate: new Date().toISOString().split('T')[0]
+        }
+      ];
     }
     
     // If Supabase is configured, return empty array as the real implementation is in api.ts
@@ -222,7 +188,21 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock appeals.');
-      return mockAppeals;
+      // Return mock appeals for development
+      return [
+        {
+          id: '1',
+          employeeId: '1',
+          employeeName: 'John Doe',
+          type: 'Late',
+          reason: 'Traffic delay',
+          message: 'Got stuck in traffic',
+          status: 'Pending',
+          date: new Date().toISOString().split('T')[0],
+          appealDate: new Date().toISOString().split('T')[0],
+          relatedId: '1'
+        }
+      ];
     }
     
     // If Supabase is configured, return empty array as the real implementation is in api.ts
@@ -242,13 +222,7 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Adding mock log.');
-      mockLogs.push({
-        id: Math.random().toString(36).substr(2, 9),
-        action,
-        details,
-        user,
-        timestamp: new Date().toISOString()
-      });
+      // In a real implementation, this would add to the database
       return;
     }
     
@@ -263,7 +237,16 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock logs.');
-      return mockLogs;
+      // Return mock logs for development
+      return [
+        {
+          id: '1',
+          action: 'Login',
+          details: 'User logged in',
+          user: 'John Doe',
+          timestamp: new Date().toISOString()
+        }
+      ];
     }
     
     // If Supabase is configured, return empty array as the real implementation is in api.ts
@@ -279,7 +262,11 @@ export const storage = {
     if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
         !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
       console.warn('Supabase not configured. Returning mock payroll status.');
-      return mockPayrollStatus;
+      // Return mock payroll status for development
+      return {
+        '1': 'Paid',
+        '2': 'Pending'
+      };
     }
     
     // If Supabase is configured, return empty object as the real implementation is in api.ts

@@ -157,7 +157,6 @@ export const storage = {
     // In a real implementation, this would update the local cache
     console.log('Setting attendance in storage:', attendance.length);
   },
-
   addAttendance: (attendance: Attendance): boolean => {
     // Check if Supabase is properly configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;

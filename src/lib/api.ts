@@ -24,7 +24,7 @@ export const employeeAPI = {
     const { data, error } = await supabase.from('employees').select('*');
     if (error) throw error;
     
-    return data.map((emp: any) => ({
+    return (data || []).map((emp: any) => ({
       id: emp.id,
       employeeId: emp.employee_id,
       name: emp.name,
@@ -83,7 +83,7 @@ export const employeeAPI = {
     }]).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   },
   update: async (id: string, employee: Partial<Employee>) => {
     const { data, error } = await supabase.from('employees').update({
@@ -104,7 +104,7 @@ export const employeeAPI = {
     }).eq('id', id).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   },
   delete: async (id: string) => {
     const { error } = await supabase.from('employees').delete().eq('id', id);
@@ -119,7 +119,7 @@ export const attendanceAPI = {
     const { data, error } = await supabase.from('attendance').select('*');
     if (error) throw error;
     
-    return data.map((att: any) => ({
+    return (data || []).map((att: any) => ({
       id: att.id,
       employeeId: att.employee_id,
       date: att.date,
@@ -142,7 +142,7 @@ export const attendanceAPI = {
     }]).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   },
   update: async (id: string, attendance: Partial<Attendance>) => {
     const { data, error } = await supabase.from('attendance').update({
@@ -152,7 +152,7 @@ export const attendanceAPI = {
     }).eq('id', id).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   }
 };
 
@@ -162,7 +162,7 @@ export const leaveAPI = {
     const { data, error } = await supabase.from('leaves').select('*');
     if (error) throw error;
     
-    return data.map((leave: any) => ({
+    return (data || []).map((leave: any) => ({
       id: leave.id,
       employeeId: leave.employee_id,
       employeeName: leave.employee_name,
@@ -187,7 +187,7 @@ export const leaveAPI = {
     }]).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   },
   update: async (id: string, leave: Partial<Leave>) => {
     const { data, error } = await supabase.from('leaves').update({
@@ -195,7 +195,7 @@ export const leaveAPI = {
     }).eq('id', id).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   }
 };
 
@@ -205,7 +205,7 @@ export const fineAPI = {
     const { data, error } = await supabase.from('fines').select('*');
     if (error) throw error;
     
-    return data.map((fine: any) => ({
+    return (data || []).map((fine: any) => ({
       id: fine.id,
       employeeId: fine.employee_id,
       amount: fine.amount,
@@ -224,7 +224,7 @@ export const fineAPI = {
     }]).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   },
   update: async (id: string, fine: Partial<Fine>) => {
     const { data, error } = await supabase.from('fines').update({
@@ -232,7 +232,7 @@ export const fineAPI = {
     }).eq('id', id).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   }
 };
 
@@ -242,7 +242,7 @@ export const appealAPI = {
     const { data, error } = await supabase.from('appeals').select('*');
     if (error) throw error;
     
-    return data.map((appeal: any) => ({
+    return (data || []).map((appeal: any) => ({
       id: appeal.id,
       employeeId: appeal.employee_id,
       employeeName: appeal.employee_name,
@@ -269,7 +269,7 @@ export const appealAPI = {
     }]).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   },
   update: async (id: string, appeal: Partial<Appeal>) => {
     const { data, error } = await supabase.from('appeals').update({
@@ -277,7 +277,7 @@ export const appealAPI = {
     }).eq('id', id).select();
     
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   }
 };
 
@@ -291,7 +291,7 @@ export const settingsAPI = {
   update: async (settings: any) => {
     const { data, error } = await supabase.from('settings').update(settings).eq('id', 'settings').select();
     if (error) throw error;
-    return data[0];
+    return data?.[0];
   }
 };
 

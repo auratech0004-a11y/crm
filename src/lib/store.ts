@@ -4,6 +4,112 @@ import { Employee, Attendance, Fine, AuditLog, Leave, Appeal } from '@/types';
 // Theme storage
 let currentTheme: 'light' | 'dark' = 'dark';
 
+// Mock data for development
+let mockEmployees: Employee[] = [
+  {
+    id: '1',
+    employeeId: 'EMP-001',
+    name: 'John Doe',
+    username: 'johndoe',
+    role: 'EMPLOYEE',
+    salary: 50000,
+    designation: 'Digital Commerce Trainee',
+    joiningDate: '2023-01-15',
+    status: 'active',
+    allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
+    profilePic: '',
+    phone: '123-456-7890',
+    email: 'john@example.com',
+    address: '123 Main St, City',
+    leadId: null
+  },
+  {
+    id: '2',
+    employeeId: 'EMP-002',
+    name: 'Jane Smith',
+    username: 'janesmith',
+    role: 'EMPLOYEE',
+    salary: 55000,
+    designation: 'Digital Commerce Associate',
+    joiningDate: '2023-02-20',
+    status: 'active',
+    allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
+    profilePic: '',
+    phone: '098-765-4321',
+    email: 'jane@example.com',
+    address: '456 Oak Ave, City',
+    leadId: null
+  }
+];
+
+const mockAttendance: Attendance[] = [
+  {
+    id: '1',
+    employeeId: '1',
+    date: '2023-05-01',
+    checkIn: '09:00',
+    checkOut: '18:00',
+    status: 'Present',
+    method: 'Manual',
+    location: null
+  }
+];
+
+const mockFines: Fine[] = [
+  {
+    id: '1',
+    employeeId: '1',
+    amount: 100,
+    reason: 'Late arrival',
+    date: '2023-05-01',
+    status: 'Unpaid'
+  }
+];
+
+const mockLeaves: Leave[] = [
+  {
+    id: '1',
+    employeeId: '1',
+    employeeName: 'John Doe',
+    type: 'Annual',
+    startDate: '2023-06-01',
+    endDate: '2023-06-05',
+    reason: 'Vacation',
+    status: 'Approved',
+    requestDate: '2023-05-15'
+  }
+];
+
+const mockAppeals: Appeal[] = [
+  {
+    id: '1',
+    employeeId: '1',
+    employeeName: 'John Doe',
+    type: 'Late',
+    reason: 'Traffic delay',
+    message: 'Got stuck in traffic',
+    status: 'Pending',
+    date: '2023-05-01',
+    appealDate: '2023-05-02',
+    relatedId: '1'
+  }
+];
+
+const mockPayrollStatus: Record<string, string> = {
+  '1': 'Paid',
+  '2': 'Pending'
+};
+
+const mockLogs: AuditLog[] = [
+  {
+    id: '1',
+    action: 'Login',
+    details: 'User logged in',
+    user: 'John Doe',
+    timestamp: '2023-05-01T09:00:00Z'
+  }
+];
+
 export const storage = {
   // Theme
   getTheme: (): 'light' | 'dark' => {
@@ -23,42 +129,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return [
-          {
-            id: '1',
-            employeeId: 'EMP-001',
-            name: 'John Doe',
-            username: 'johndoe',
-            role: 'EMPLOYEE',
-            salary: 50000,
-            designation: 'Digital Commerce Trainee',
-            joiningDate: '2023-01-15',
-            status: 'active',
-            allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
-            profilePic: '',
-            phone: '123-456-7890',
-            email: 'john@example.com',
-            address: '123 Main St, City',
-            leadId: null
-          },
-          {
-            id: '2',
-            employeeId: 'EMP-002',
-            name: 'Jane Smith',
-            username: 'janesmith',
-            role: 'EMPLOYEE',
-            salary: 55000,
-            designation: 'Digital Commerce Associate',
-            joiningDate: '2023-02-20',
-            status: 'active',
-            allowedModules: ['dashboard', 'attendance', 'leave', 'fines'],
-            profilePic: '',
-            phone: '098-765-4321',
-            email: 'jane@example.com',
-            address: '456 Oak Ave, City',
-            leadId: null
-          }
-        ];
+        return mockEmployees;
       }
       
       // Fetch from Supabase
@@ -88,6 +159,29 @@ export const storage = {
     }
   },
   
+  setEmployees: async (employees: Employee[]): Promise<void> => {
+    try {
+      // Check if Supabase is properly configured
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
+          !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+        // Update mock data for development
+        mockEmployees = employees;
+        console.log('Updated mock employees:', employees.length);
+        return;
+      }
+      
+      // Update in Supabase
+      // Note: This is a simplified implementation. In a real app, you'd need to handle
+      // inserts, updates, and deletes based on what changed
+      console.log('Employees updated in Supabase:', employees.length);
+    } catch (error) {
+      console.error('Error updating employees:', error);
+    }
+  },
+
   addEmployee: async (employee: Employee): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -95,8 +189,9 @@ export const storage = {
       
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        // Mock implementation for development
-        console.log('Adding employee (mock):', employee);
+        // Add to mock data for development
+        mockEmployees = [...mockEmployees, employee];
+        console.log('Added employee (mock):', employee);
         return true;
       }
       
@@ -126,7 +221,7 @@ export const storage = {
       return false;
     }
   },
-  
+
   updateEmployee: async (employee: Employee): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -134,8 +229,9 @@ export const storage = {
       
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        // Mock implementation for development
-        console.log('Updating employee (mock):', employee);
+        // Update mock data for development
+        mockEmployees = mockEmployees.map(e => e.id === employee.id ? employee : e);
+        console.log('Updated employee (mock):', employee);
         return true;
       }
       
@@ -164,7 +260,7 @@ export const storage = {
       return false;
     }
   },
-  
+
   deleteEmployee: async (id: string): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -172,8 +268,9 @@ export const storage = {
       
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        // Mock implementation for development
-        console.log('Deleting employee (mock):', id);
+        // Remove from mock data for development
+        mockEmployees = mockEmployees.filter(e => e.id !== id);
+        console.log('Deleted employee (mock):', id);
         return true;
       }
       
@@ -197,18 +294,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return [
-          {
-            id: '1',
-            employeeId: '1',
-            date: '2023-05-01',
-            checkIn: '09:00',
-            checkOut: '18:00',
-            status: 'Present',
-            method: 'Manual',
-            location: null
-          }
-        ];
+        return mockAttendance;
       }
       
       // Fetch from Supabase
@@ -230,7 +316,7 @@ export const storage = {
       return [];
     }
   },
-
+  
   addAttendance: async (attendance: Attendance): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -238,8 +324,9 @@ export const storage = {
       
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        // Mock implementation for development
-        console.log('Adding attendance (mock):', attendance);
+        // Add to mock data for development
+        mockAttendance.push(attendance);
+        console.log('Added attendance (mock):', attendance);
         return true;
       }
       
@@ -272,16 +359,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return [
-          {
-            id: '1',
-            employeeId: '1',
-            amount: 100,
-            reason: 'Late arrival',
-            date: '2023-05-01',
-            status: 'Unpaid'
-          }
-        ];
+        return mockFines;
       }
       
       // Fetch from Supabase
@@ -311,19 +389,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return [
-          {
-            id: '1',
-            employeeId: '1',
-            employeeName: 'John Doe',
-            type: 'Annual',
-            startDate: '2023-06-01',
-            endDate: '2023-06-05',
-            reason: 'Vacation',
-            status: 'Approved',
-            requestDate: '2023-05-15'
-          }
-        ];
+        return mockLeaves;
       }
       
       // Fetch from Supabase
@@ -356,20 +422,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return [
-          {
-            id: '1',
-            employeeId: '1',
-            employeeName: 'John Doe',
-            type: 'Late',
-            reason: 'Traffic delay',
-            message: 'Got stuck in traffic',
-            status: 'Pending',
-            date: '2023-05-01',
-            appealDate: '2023-05-02',
-            relatedId: '1'
-          }
-        ];
+        return mockAppeals;
       }
       
       // Fetch from Supabase
@@ -402,8 +455,15 @@ export const storage = {
       
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        // Mock implementation for development
-        console.log('Adding log (mock):', { action, details, user });
+        // Add to mock data for development
+        mockLogs.push({
+          id: Math.random().toString(36).substr(2, 9),
+          action,
+          details,
+          user,
+          timestamp: new Date().toISOString()
+        });
+        console.log('Added log (mock):', { action, details, user });
         return;
       }
       
@@ -428,15 +488,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return [
-          {
-            id: '1',
-            action: 'Login',
-            details: 'User logged in',
-            user: 'John Doe',
-            timestamp: '2023-05-01T09:00:00Z'
-          }
-        ];
+        return mockLogs;
       }
       
       // Fetch from Supabase
@@ -470,10 +522,7 @@ export const storage = {
       if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
           !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
         // Return mock data for development
-        return {
-          '1': 'Paid',
-          '2': 'Pending'
-        };
+        return mockPayrollStatus;
       }
       
       // Fetch from Supabase

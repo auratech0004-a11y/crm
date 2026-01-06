@@ -48,7 +48,6 @@ const EmployeeManagement: React.FC = () => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
       if (editingEmployee) {
         // Update existing employee
@@ -58,7 +57,9 @@ const EmployeeManagement: React.FC = () => {
           password: formData.password || editingEmployee.password
         } as Employee;
         
-        await storage.updateEmployee(updatedEmp);
+        const allEmps = await storage.getEmployees();
+        const newAll = allEmps.map(e => e.id === updatedEmp.id ? updatedEmp : e);
+        storage.setEmployees(newAll.filter(e => e.role === 'EMPLOYEE'));
         toast.success('Employee updated successfully');
       } else {
         // Create new employee
@@ -77,10 +78,11 @@ const EmployeeManagement: React.FC = () => {
           allowedModules: ['dashboard', 'attendance', 'leave', 'fines']
         };
         
-        await storage.addEmployee(newEmp);
+        const allEmps = await storage.getEmployees();
+        const newAll = [...allEmps, newEmp];
+        storage.setEmployees(newAll);
         toast.success('Employee created successfully');
       }
-      
       loadEmployees();
       setModalOpen(false);
       resetForm();
@@ -92,7 +94,9 @@ const EmployeeManagement: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to remove ${name}?`)) {
       try {
-        await storage.deleteEmployee(id);
+        const allEmps = await storage.getEmployees();
+        const newAll = allEmps.filter(e => e.id !== id);
+        storage.setEmployees(newAll);
         loadEmployees();
         toast.success('Employee removed successfully');
       } catch (error) {
@@ -138,10 +142,7 @@ const EmployeeManagement: React.FC = () => {
           <p className="text-muted-foreground text-sm">Manage your workforce</p>
         </div>
         <button 
-          onClick={() => {
-            resetForm();
-            setModalOpen(true);
-          }}
+          onClick={() => { resetForm(); setModalOpen(true); }}
           className="gradient-primary text-primary-foreground p-3 px-6 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
         >
           <UserPlus className="w-5 h-5" />
@@ -213,7 +214,7 @@ const EmployeeManagement: React.FC = () => {
                 {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
               </h3>
               <button 
-                onClick={() => setModalOpen(false)} 
+                onClick={() => setModalOpen(false)}
                 className="text-muted-foreground hover:text-foreground"
               >
                 <X className="w-6 h-6" />
@@ -239,11 +240,11 @@ const EmployeeManagement: React.FC = () => {
                   </div>
                 </div>
                 <input 
-                  ref={fileInputRef}
+                  ref={fileInputRef} 
                   type="file" 
                   accept="image/*" 
-                  onChange={handleImageChange}
-                  className="hidden"
+                  onChange={handleImageChange} 
+                  className="hidden" 
                 />
               </div>
               

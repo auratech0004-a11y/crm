@@ -16,7 +16,6 @@ const AdminPayroll: React.FC = () => {
     const loadData = async () => {
       const empData = await storage.getEmployees();
       const attData = await storage.getAttendance();
-      
       setEmployees(empData.filter(e => e.role === 'EMPLOYEE'));
       setAttendance(attData);
       
@@ -69,7 +68,6 @@ const AdminPayroll: React.FC = () => {
     attendance.forEach(a => {
       const day = a.date?.slice(0, 10);
       if (!day || !validDates.has(day)) return;
-      
       grouped[a.employeeId] = grouped[a.employeeId] || {};
       grouped[a.employeeId][day] = grouped[a.employeeId][day] || [];
       grouped[a.employeeId][day].push(a);
@@ -78,16 +76,13 @@ const AdminPayroll: React.FC = () => {
     // Calculate present/absent days for each employee
     employees.forEach(emp => {
       let present = 0;
-      
       validDates.forEach(day => {
         const logs = grouped[emp.id]?.[day] || [];
         // Only count as present if both check-in and check-out exist
         const hasCheckIn = logs.some(l => l.checkIn);
         const hasCheckOut = logs.some(l => l.checkOut);
-        
         if (hasCheckIn && hasCheckOut) present++;
       });
-      
       const absent = Math.max(workingDaysInMonth - present, 0);
       map[emp.id] = { present, absent };
     });
@@ -108,16 +103,11 @@ const AdminPayroll: React.FC = () => {
     const designation = allowedDesignations.includes(emp.designation) 
       ? emp.designation 
       : 'Digital Commerce Trainee';
-    
+      
     const basic = emp.salary || 0;
     // Per-day salary calculation (rounded as per sample slip)
     const perDay = Math.round(basic / 26);
-    
-    const { present, absent } = employeeAttendanceSummary[emp.id] || { 
-      present: 0, 
-      absent: workingDaysInMonth 
-    };
-    
+    const { present, absent } = employeeAttendanceSummary[emp.id] || { present: 0, absent: workingDaysInMonth };
     const deduction = perDay * absent;
     const net = Math.max(basic - deduction, 0);
     
@@ -136,14 +126,12 @@ const AdminPayroll: React.FC = () => {
   // Process payroll for all employees
   const processPayroll = async () => {
     setIsProcessing(true);
-    
     try {
       // In a real implementation, this would save to database
       const newStatus: Record<string, string> = {};
       employees.forEach(emp => {
         newStatus[emp.id] = 'Paid';
       });
-      
       setPayrollStatus(newStatus);
       toast.success('Payroll processed successfully!');
     } catch (error) {
@@ -174,7 +162,6 @@ const AdminPayroll: React.FC = () => {
     try {
       const jsPDF: any = await loadJsPDF();
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-      
       const pad = 40;
       let y = pad;
       const right = 555; // A4 width minus padding
@@ -198,7 +185,6 @@ const AdminPayroll: React.FC = () => {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
       doc.text('Monthly Salary Slip', pad, y);
-      
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
       doc.text(month, right, y, { align: 'right' });
@@ -222,7 +208,6 @@ const AdminPayroll: React.FC = () => {
       doc.setFontSize(12);
       doc.text('Attendance:', pad, y);
       y += 16;
-      
       doc.setFont('helvetica', 'normal');
       drawRow('Total Working Days', calc.workingDays, y);
       y += 18;
@@ -236,7 +221,6 @@ const AdminPayroll: React.FC = () => {
       doc.setFontSize(12);
       doc.text('Salary Details:', pad, y);
       y += 16;
-      
       doc.setFont('helvetica', 'normal');
       const cur = (n: number) => `₨ ${n.toLocaleString()}`;
       drawRow('Basic Salary', cur(calc.basic), y);
@@ -251,11 +235,9 @@ const AdminPayroll: React.FC = () => {
       doc.setDrawColor(100);
       doc.setLineWidth(0.5);
       doc.roundedRect(pad, y, right - pad - pad, 36, 6, 6);
-      
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
       doc.text('Net Salary Payable', pad + 12, y + 22);
-      
       doc.setFontSize(16);
       doc.text(cur(calc.net), right - 12, y + 24, { align: 'right' });
       y += 60;
@@ -266,7 +248,6 @@ const AdminPayroll: React.FC = () => {
       doc.text('Prepared By:', pad, y);
       doc.text('Approved By:', right - 180, y);
       y += 28;
-      
       doc.setDrawColor(160);
       doc.line(pad, y, pad + 200, y);
       doc.line(right - 180, y, right - 180 + 200, y);
@@ -290,7 +271,7 @@ const AdminPayroll: React.FC = () => {
           <p className="text-muted-foreground mt-1">Process and track monthly salaries</p>
         </div>
         <button 
-          onClick={processPayroll}
+          onClick={processPayroll} 
           disabled={isProcessing}
           className="gradient-primary text-primary-foreground px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
         >
@@ -318,7 +299,6 @@ const AdminPayroll: React.FC = () => {
             <p className="text-xs text-muted-foreground font-bold uppercase">Total Monthly Payroll</p>
           </div>
         </div>
-        
         <div className="bg-card border border-border p-6 rounded-3xl shadow-card flex items-center gap-4">
           <div className="w-14 h-14 bg-success/10 text-success rounded-2xl flex items-center justify-center">
             <CheckCircle className="w-7 h-7" />
@@ -328,7 +308,6 @@ const AdminPayroll: React.FC = () => {
             <p className="text-xs text-muted-foreground font-bold uppercase">Paid This Month</p>
           </div>
         </div>
-        
         <div className="bg-card border border-border p-6 rounded-3xl shadow-card flex items-center gap-4">
           <div className="w-14 h-14 bg-warning/10 text-warning rounded-2xl flex items-center justify-center">
             <Clock className="w-7 h-7" />

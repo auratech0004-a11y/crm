@@ -28,7 +28,11 @@ export interface Attendance {
   checkOut?: string;
   status: 'Present' | 'Absent' | 'Late';
   method: 'Auto' | 'Manual';
-  location?: { lat: number; lng: number; address?: string };
+  location?: {
+    lat: number;
+    lng: number;
+    address?: string;
+  };
 }
 
 export interface Fine {

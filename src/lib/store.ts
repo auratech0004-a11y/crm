@@ -56,347 +56,6 @@ let mockEmployees: Employee[] = [
     email: 'sara@arhr.com',
     address: '',
     leadId: null
-  },
-  // New employees from the image
-  {
-    id: 'emp-3',
-    employeeId: 'DC-001',
-    name: 'Muhammad Usman',
-    username: 'muhammadusman',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000001',
-    email: 'muhammadusman@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-4',
-    employeeId: 'DC-002',
-    name: 'Muhammad Awais',
-    username: 'muhammadawais',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000002',
-    email: 'muhammadawais@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-5',
-    employeeId: 'DC-003',
-    name: 'Muhammad Saad',
-    username: 'muhammadsaad',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000003',
-    email: 'muhammadsaad@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-6',
-    employeeId: 'DC-004',
-    name: 'Muhammad Talha',
-    username: 'muhammadtalha',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000004',
-    email: 'muhammadtalha@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-7',
-    employeeId: 'DC-005',
-    name: 'Muhammad Daniyal',
-    username: 'muhammaddaniyal',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000005',
-    email: 'muhammaddaniyal@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-8',
-    employeeId: 'DC-006',
-    name: 'Muhammad Haris',
-    username: 'muhammadharis',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000006',
-    email: 'muhammadharis@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-9',
-    employeeId: 'DC-007',
-    name: 'Muhammad Hassan',
-    username: 'muhammadhassan',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000007',
-    email: 'muhammadhassan@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-10',
-    employeeId: 'DC-008',
-    name: 'Muhammad Ahsan',
-    username: 'muhammadahsan',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000008',
-    email: 'muhammadahsan@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-11',
-    employeeId: 'DC-009',
-    name: 'Muhammad Faizan',
-    username: 'muhammadfaizan',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000009',
-    email: 'muhammadfaizan@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-12',
-    employeeId: 'DC-010',
-    name: 'Muhammad Zeeshan',
-    username: 'muhammadzeeshan',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000010',
-    email: 'muhammadzeeshan@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-13',
-    employeeId: 'DC-011',
-    name: 'Muhammad Asad',
-    username: 'muhammadasad',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000011',
-    email: 'muhammadasad@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-14',
-    employeeId: 'DC-012',
-    name: 'Muhammad Adil',
-    username: 'muhammadadil',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000012',
-    email: 'muhammadadil@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-15',
-    employeeId: 'DC-013',
-    name: 'Muhammad Bilal',
-    username: 'muhammadbilal',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000013',
-    email: 'muhammadbilal@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-16',
-    employeeId: 'DC-014',
-    name: 'Muhammad Zain',
-    username: 'muhammadzain',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000014',
-    email: 'muhammadzain@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-17',
-    employeeId: 'DC-015',
-    name: 'Muhammad Hamza',
-    username: 'muhammadhamza',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000015',
-    email: 'muhammadhamza@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-18',
-    employeeId: 'DC-016',
-    name: 'Muhammad Junaid',
-    username: 'muhammadjunaid',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000016',
-    email: 'muhammadjunaid@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-19',
-    employeeId: 'DC-017',
-    name: 'Muhammad Owais',
-    username: 'muhammadowais',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000017',
-    email: 'muhammadowais@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-20',
-    employeeId: 'DC-018',
-    name: 'Muhammad Sajid',
-    username: 'muhammadsajid',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000018',
-    email: 'muhammadsajid@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-21',
-    employeeId: 'DC-019',
-    name: 'Muhammad Imran',
-    username: 'muhammadimran',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000019',
-    email: 'muhammadimran@arhr.com',
-    address: '',
-    leadId: null
-  },
-  {
-    id: 'emp-22',
-    employeeId: 'DC-020',
-    name: 'Muhammad Naveed',
-    username: 'muhammadnaveed',
-    role: 'EMPLOYEE',
-    salary: 25000,
-    designation: 'Digital Commerce Trainee',
-    joiningDate: '2024-05-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
-    profilePic: '',
-    phone: '0300-0000020',
-    email: 'muhammadnaveed@arhr.com',
-    address: '',
-    leadId: null
   }
 ];
 
@@ -478,15 +137,6 @@ const mockLogs: AuditLog[] = [
   }
 ];
 
-// Mock settings with office timing
-let mockSettings = {
-  id: 'settings',
-  office_start_time: '09:00',
-  office_end_time: '18:00',
-  late_fine_amount: 100,
-  half_day_hours: 4
-};
-
 export const storage = {
   // Theme
   getTheme: (): 'light' | 'dark' => {
@@ -494,46 +144,6 @@ export const storage = {
   },
   setTheme: (theme: 'light' | 'dark'): void => {
     currentTheme = theme;
-  },
-
-  // Settings
-  getSettings: async (): Promise<any> => {
-    try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
-          !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        return mockSettings;
-      }
-      
-      const { data, error } = await supabase.from('settings').select('*').single();
-      if (error) throw error;
-      return data || mockSettings;
-    } catch (error) {
-      console.error('Error fetching settings:', error);
-      return mockSettings;
-    }
-  },
-  
-  updateSettings: async (settings: any): Promise<boolean> => {
-    try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
-          !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
-        mockSettings = { ...mockSettings, ...settings };
-        return true;
-      }
-      
-      const { error } = await supabase.from('settings').upsert(settings, { onConflict: 'id' });
-      if (error) throw error;
-      return true;
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      return false;
-    }
   },
 
   // Employees
@@ -598,7 +208,7 @@ export const storage = {
       console.error('Error updating employees:', error);
     }
   },
-  
+
   addEmployee: async (employee: Employee): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -638,7 +248,7 @@ export const storage = {
       return false;
     }
   },
-  
+
   updateEmployee: async (employee: Employee): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -677,7 +287,7 @@ export const storage = {
       return false;
     }
   },
-  
+
   deleteEmployee: async (id: string): Promise<boolean> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -693,6 +303,7 @@ export const storage = {
       
       // Delete from Supabase
       const { error } = await supabase.from('employees').delete().eq('id', id);
+      
       if (error) throw error;
       return true;
     } catch (error) {
@@ -895,7 +506,7 @@ export const storage = {
       console.error('Error adding log:', error);
     }
   },
-  
+
   getLogs: async (): Promise<AuditLog[]> => {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -913,6 +524,7 @@ export const storage = {
         .select('*')
         .order('timestamp', { ascending: false })
         .limit(100);
+        
       if (error) throw error;
       
       return data.map((log: any) => ({
@@ -948,6 +560,7 @@ export const storage = {
       data.forEach((item: any) => {
         status[item.employee_id] = item.status;
       });
+      
       return status;
     } catch (error) {
       console.error('Error fetching payroll status:', error);

@@ -57,24 +57,18 @@ const EmployeeManagement: React.FC = () => {
           password: formData.password || editingEmployee.password
         } as Employee;
         
-        const success = await storage.updateEmployee(updatedEmp);
-        if (success) {
-          toast.success('Employee updated successfully');
-        } else {
-          toast.error('Failed to update employee');
-          return;
-        }
+        const allEmps = await storage.getEmployees();
+        const newAll = allEmps.map(e => e.id === updatedEmp.id ? updatedEmp : e);
+        storage.setEmployees(newAll.filter(e => e.role === 'EMPLOYEE'));
+        toast.success('Employee updated successfully');
       } else {
         // Create new employee
-        // Set password to username if not provided
-        const password = formData.password || formData.username;
-        
         const newEmp: Employee = {
           id: Math.random().toString(36).substr(2, 9),
           employeeId: formData.employeeId || undefined,
           name: formData.name,
           username: formData.username,
-          password: password,
+          password: formData.password,
           designation: formData.designation,
           salary: formData.salary,
           role: formData.role,
@@ -84,15 +78,11 @@ const EmployeeManagement: React.FC = () => {
           allowedModules: ['dashboard', 'attendance', 'leave', 'fines']
         };
         
-        const success = await storage.addEmployee(newEmp);
-        if (success) {
-          toast.success('Employee created successfully');
-        } else {
-          toast.error('Failed to create employee');
-          return;
-        }
+        const allEmps = await storage.getEmployees();
+        const newAll = [...allEmps, newEmp];
+        storage.setEmployees(newAll);
+        toast.success('Employee created successfully');
       }
-      
       loadEmployees();
       setModalOpen(false);
       resetForm();
@@ -104,13 +94,11 @@ const EmployeeManagement: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to remove ${name}?`)) {
       try {
-        const success = await storage.deleteEmployee(id);
-        if (success) {
-          loadEmployees();
-          toast.success('Employee removed successfully');
-        } else {
-          toast.error('Failed to remove employee');
-        }
+        const allEmps = await storage.getEmployees();
+        const newAll = allEmps.filter(e => e.id !== id);
+        storage.setEmployees(newAll);
+        loadEmployees();
+        toast.success('Employee removed successfully');
       } catch (error) {
         toast.error('Failed to remove employee');
       }
@@ -154,10 +142,7 @@ const EmployeeManagement: React.FC = () => {
           <p className="text-muted-foreground text-sm">Manage your workforce</p>
         </div>
         <button 
-          onClick={() => {
-            resetForm();
-            setModalOpen(true);
-          }}
+          onClick={() => { resetForm(); setModalOpen(true); }}
           className="gradient-primary text-primary-foreground p-3 px-6 rounded-2xl flex items-center gap-2 font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
         >
           <UserPlus className="w-5 h-5" />
@@ -301,64 +286,64 @@ const EmployeeManagement: React.FC = () => {
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Password</label>
                 <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
-                    value={formData.password}
-                    onChange={e => setFormData({...formData, password: e.target.value})}
-                    placeholder={editingEmployee ? 'Leave empty to keep current' : 'Defaults to username'}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Designation</label>
-                  <select
-                    required
-                    className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
-                    value={formData.designation}
-                    onChange={e => setFormData({...formData, designation: e.target.value})}
-                  >
-                    <option value="">Select Designation</option>
-                    <option value="Digital Commerce Trainee">Digital Commerce Trainee</option>
-                    <option value="Digital Commerce Probationer">Digital Commerce Probationer</option>
-                    <option value="Digital Commerce Associate">Digital Commerce Associate</option>
-                    <option value="Graphic Designer">Graphic Designer</option>
-                    <option value="UI/UX Designer">UI/UX Designer</option>
-                    <option value="Software Engineer">Software Engineer</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Salary (PKR)</label>
-                  <input
-                    required
-                    type="number"
-                    className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
-                    value={formData.salary}
-                    onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})}
-                  />
-                </div>
-                
-                <div className="pt-4 flex gap-3">
-                  <button 
-                    type="button" 
-                    onClick={() => setModalOpen(false)}
-                    className="flex-1 py-3.5 font-bold text-muted-foreground border border-border rounded-xl hover:bg-secondary"
-                  >
-                    Cancel
-                  </button>
-                  <button 
-                    type="submit" 
-                    className="flex-1 py-3.5 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20"
-                  >
-                    {editingEmployee ? 'Save Changes' : 'Create Account'}
-                  </button>
-                </div>
-              </form>
-            </div>
+                  required={!editingEmployee}
+                  type="password"
+                  className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
+                  value={formData.password}
+                  onChange={e => setFormData({...formData, password: e.target.value})}
+                  placeholder={editingEmployee ? 'Leave empty to keep current' : ''}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Designation</label>
+                <select
+                  required
+                  className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
+                  value={formData.designation}
+                  onChange={e => setFormData({...formData, designation: e.target.value})}
+                >
+                  <option value="">Select Designation</option>
+                  <option value="Digital Commerce Trainee">Digital Commerce Trainee</option>
+                  <option value="Digital Commerce Probationer">Digital Commerce Probationer</option>
+                  <option value="Digital Commerce Associate">Digital Commerce Associate</option>
+                  <option value="Software Engineer">Software Engineer</option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Salary (PKR)</label>
+                <input
+                  required
+                  type="number"
+                  className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
+                  value={formData.salary}
+                  onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})}
+                />
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setModalOpen(false)}
+                  className="flex-1 py-3.5 font-bold text-muted-foreground border border-border rounded-xl hover:bg-secondary"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="flex-1 py-3.5 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20"
+                >
+                  {editingEmployee ? 'Save Changes' : 'Create Account'}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
-    );
-  };
-  
-  export default EmployeeManagement;
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default EmployeeManagement;

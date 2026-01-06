@@ -15,7 +15,7 @@ let mockEmployees: Employee[] = [
     role: 'ADMIN',
     salary: 0,
     designation: 'Super Admin',
-    joiningDate: '2023-01-01',
+    joiningDate: '2024-01-01',
     status: 'active',
     allowedModules: ['dashboard', 'employees', 'attendance', 'leave', 'fines', 'payroll', 'settings', 'lead', 'appeals'],
     profilePic: '',
@@ -116,14 +116,14 @@ let mockEmployees: Employee[] = [
   }
 ];
 
-// Generate attendance records for all employees from Jan 1 to Jan 6
+// Generate attendance records for all employees from Jan 1 to Jan 6, 2026
 const generateAttendanceRecords = (): Attendance[] => {
   const attendance: Attendance[] = [];
   const employeeIds = ['emp-1', 'emp-2', 'emp-3', 'emp-4', 'emp-5'];
   
-  // Generate attendance for Jan 1 to Jan 6, 2024
+  // Generate attendance for Jan 1 to Jan 6, 2026
   for (let day = 1; day <= 6; day++) {
-    const dateStr = `2024-01-${day.toString().padStart(2, '0')}`;
+    const dateStr = `2026-01-${day.toString().padStart(2, '0')}`;
     
     // For each employee, create an attendance record
     employeeIds.forEach((empId, index) => {
@@ -133,7 +133,7 @@ const generateAttendanceRecords = (): Attendance[] => {
       const checkOutTime = isLate ? '18:30' : '18:00';
       
       attendance.push({
-        id: `att-${day}-${index + 1}`,
+        id: `att-2026-${day}-${index + 1}`,
         employeeId: empId,
         date: dateStr,
         checkIn: checkInTime,
@@ -156,7 +156,7 @@ const mockFines: Fine[] = [
     employeeId: 'emp-1',
     amount: 100,
     reason: 'Late arrival on Jan 3',
-    date: '2024-01-03',
+    date: '2026-01-03',
     status: 'Unpaid'
   },
   {
@@ -164,7 +164,7 @@ const mockFines: Fine[] = [
     employeeId: 'emp-3',
     amount: 100,
     reason: 'Late arrival on Jan 3',
-    date: '2024-01-03',
+    date: '2026-01-03',
     status: 'Paid'
   }
 ];
@@ -175,22 +175,22 @@ const mockLeaves: Leave[] = [
     employeeId: 'emp-1',
     employeeName: 'Babar Rizwan',
     type: 'Annual',
-    startDate: '2024-01-10',
-    endDate: '2024-01-12',
+    startDate: '2026-01-10',
+    endDate: '2026-01-12',
     reason: 'Family vacation',
     status: 'Approved',
-    requestDate: '2023-12-20'
+    requestDate: '2025-12-20'
   },
   {
     id: 'leave-2',
     employeeId: 'emp-2',
     employeeName: 'Shehrbano',
     type: 'Sick',
-    startDate: '2024-01-05',
-    endDate: '2024-01-05',
+    startDate: '2026-01-05',
+    endDate: '2026-01-05',
     reason: 'Medical appointment',
     status: 'Pending',
-    requestDate: '2024-01-03'
+    requestDate: '2026-01-03'
   }
 ];
 
@@ -203,8 +203,8 @@ const mockAppeals: Appeal[] = [
     reason: 'Traffic delay',
     message: 'Got stuck in traffic on Jan 3',
     status: 'Pending',
-    date: '2024-01-03',
-    appealDate: '2024-01-04',
+    date: '2026-01-03',
+    appealDate: '2026-01-04',
     relatedId: 'fine-1'
   }
 ];
@@ -223,14 +223,14 @@ const mockLogs: AuditLog[] = [
     action: 'Login',
     details: 'Admin logged in',
     user: 'A.R HR Admin',
-    timestamp: '2024-01-01T09:00:00Z'
+    timestamp: '2026-01-01T09:00:00Z'
   },
   {
     id: 'log-2',
     action: 'Attendance',
     details: 'Attendance marked for all employees',
     user: 'A.R HR Admin',
-    timestamp: '2024-01-06T18:30:00Z'
+    timestamp: '2026-01-06T18:30:00Z'
   }
 ];
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { storage } from '@/lib/store';
 import { Employee, Attendance } from '@/types';
-import { DollarSign, CheckCircle, Clock, Download } from 'lucide-react';
+import { DollarSign, CheckCircle, Clock, Download, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AdminPayroll: React.FC = () => {
@@ -11,7 +11,7 @@ const AdminPayroll: React.FC = () => {
   const [payrollStatus, setPayrollStatus] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [attendance, setAttendance] = useState<Attendance[]>([]);
-  
+
   useEffect(() => {
     const loadData = async () => {
       const empData = await storage.getEmployees();
@@ -26,7 +26,6 @@ const AdminPayroll: React.FC = () => {
       });
       setPayrollStatus(status);
     };
-    
     loadData();
   }, []);
 
@@ -62,7 +61,7 @@ const AdminPayroll: React.FC = () => {
         validDates.add(d.toISOString().slice(0, 10));
       }
     }
-    
+
     // Group attendance by employee and date
     const grouped: Record<string, Record<string, Attendance[]>> = {};
     attendance.forEach(a => {
@@ -72,7 +71,7 @@ const AdminPayroll: React.FC = () => {
       grouped[a.employeeId][day] = grouped[a.employeeId][day] || [];
       grouped[a.employeeId][day].push(a);
     });
-    
+
     // Calculate present/absent days for each employee
     employees.forEach(emp => {
       let present = 0;
@@ -105,8 +104,10 @@ const AdminPayroll: React.FC = () => {
       : 'Digital Commerce Trainee';
       
     const basic = emp.salary || 0;
+    
     // Per-day salary calculation (rounded as per sample slip)
     const perDay = Math.round(basic / 26);
+    
     const { present, absent } = employeeAttendanceSummary[emp.id] || { present: 0, absent: workingDaysInMonth };
     const deduction = perDay * absent;
     const net = Math.max(basic - deduction, 0);
@@ -141,6 +142,20 @@ const AdminPayroll: React.FC = () => {
     }
   };
 
+  // Pay individual employee
+  const payEmployee = async (empId: string) => {
+    try {
+      // In a real implementation, this would save to database
+      setPayrollStatus(prev => ({
+        ...prev,
+        [empId]: 'Paid'
+      }));
+      toast.success('Employee paid successfully!');
+    } catch (error) {
+      toast.error('Failed to pay employee');
+    }
+  };
+
   // Download payroll slip as PDF
   const downloadSlip = async (emp: Employee) => {
     const month = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
@@ -158,20 +173,20 @@ const AdminPayroll: React.FC = () => {
         document.body.appendChild(script);
       });
     };
-    
+
     try {
       const jsPDF: any = await loadJsPDF();
       const doc = new jsPDF({ unit: 'pt', format: 'a4' });
       const pad = 40;
       let y = pad;
       const right = 555; // A4 width minus padding
-      
+
       // Helper to draw rows
       const drawRow = (
-        label: string, 
-        value: string | number, 
-        yPos: number, 
-        labelX = pad, 
+        label: string,
+        value: string | number,
+        yPos: number,
+        labelX = pad,
         valueX = 320
       ) => {
         doc.setFont('helvetica', 'normal');
@@ -180,7 +195,7 @@ const AdminPayroll: React.FC = () => {
         doc.setFont('helvetica', 'bold');
         doc.text(String(value), valueX, yPos);
       };
-      
+
       // Header
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(18);
@@ -189,12 +204,12 @@ const AdminPayroll: React.FC = () => {
       doc.setFontSize(12);
       doc.text(month, right, y, { align: 'right' });
       y += 18;
-      
+
       // Divider
       doc.setDrawColor(220);
       doc.line(pad, y, right, y);
       y += 18;
-      
+
       // Employee details
       drawRow('Employee Name', emp.name, y);
       y += 18;
@@ -202,7 +217,7 @@ const AdminPayroll: React.FC = () => {
       y += 18;
       drawRow('Designation', calc.designation, y);
       y += 24;
-      
+
       // Attendance Section
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
@@ -215,7 +230,7 @@ const AdminPayroll: React.FC = () => {
       y += 18;
       drawRow('Absent Days', calc.absent, y);
       y += 24;
-      
+
       // Salary details
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
@@ -229,7 +244,7 @@ const AdminPayroll: React.FC = () => {
       y += 18;
       drawRow('Deduction for Absent Days', cur(calc.deduction), y);
       y += 18;
-      
+
       // Net Salary box
       y += 10;
       doc.setDrawColor(100);
@@ -241,7 +256,7 @@ const AdminPayroll: React.FC = () => {
       doc.setFontSize(16);
       doc.text(cur(calc.net), right - 12, y + 24, { align: 'right' });
       y += 60;
-      
+
       // Footer
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(12);
@@ -251,7 +266,7 @@ const AdminPayroll: React.FC = () => {
       doc.setDrawColor(160);
       doc.line(pad, y, pad + 200, y);
       doc.line(right - 180, y, right - 180 + 200, y);
-      
+
       const fileSafe = emp.name.replace(/[^a-z0-9]/gi, '_');
       doc.save(`Payroll_Slip_${fileSafe}_${month}.pdf`);
     } catch (e) {
@@ -270,8 +285,8 @@ const AdminPayroll: React.FC = () => {
           <h1 className="text-3xl font-bold text-foreground">Payroll Management</h1>
           <p className="text-muted-foreground mt-1">Process and track monthly salaries</p>
         </div>
-        <button 
-          onClick={processPayroll} 
+        <button
+          onClick={processPayroll}
           disabled={isProcessing}
           className="gradient-primary text-primary-foreground px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
         >
@@ -355,13 +370,24 @@ const AdminPayroll: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <button 
-                      onClick={() => downloadSlip(emp)}
-                      className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20"
-                      title="Download Payroll Slip"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
+                    <div className="flex gap-2 justify-end">
+                      {!isPaid && (
+                        <button
+                          onClick={() => payEmployee(emp.id)}
+                          className="px-4 py-2 bg-success text-success-foreground rounded-xl text-xs font-bold hover:bg-success/90 flex items-center gap-2"
+                        >
+                          <CreditCard className="w-3 h-3" />
+                          Pay
+                        </button>
+                      )}
+                      <button
+                        onClick={() => downloadSlip(emp)}
+                        className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20"
+                        title="Download Payroll Slip"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

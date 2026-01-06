@@ -36,7 +36,6 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
           <p className="text-muted-foreground mt-1 font-medium italic">View your work presence logs</p>
         </div>
       </div>
-
       <div className="bg-card border border-border p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-8 shadow-card">
         <div className="flex items-center gap-6">
           <div className={`w-14 h-14 ${hasCheckedInToday ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'} rounded-2xl flex items-center justify-center text-2xl`}>
@@ -45,7 +44,9 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
           <div>
             <h2 className="text-xl font-black text-foreground">{hasCheckedInToday ? "Already Checked In" : "Today's Attendance"}</h2>
             <p className="text-muted-foreground text-sm font-medium">
-              {hasCheckedInToday ? "You have successfully marked your presence today." : "You haven't marked your attendance yet."}
+              {hasCheckedInToday 
+                ? "You have successfully marked your presence today." 
+                : "You haven't marked your attendance yet."}
             </p>
           </div>
         </div>
@@ -59,7 +60,6 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
           </button>
         )}
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
         <div className="bg-card border border-border p-6 rounded-3xl flex items-center gap-4 shadow-card">
           <div className="w-12 h-12 bg-success/10 text-success rounded-xl flex items-center justify-center text-xl">
@@ -98,7 +98,6 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
           </div>
         </div>
       </div>
-
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card min-h-[300px]">
         <table className="w-full text-left">
           <thead className="bg-secondary">
@@ -113,7 +112,9 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
           <tbody className="divide-y divide-border">
             {records.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-8 py-20 text-center text-muted-foreground italic font-medium">No attendance records found in history</td>
+                <td colSpan={5} className="px-8 py-20 text-center text-muted-foreground italic font-medium">
+                  No attendance records found in history
+                </td>
               </tr>
             ) : (
               records.map(r => (
@@ -132,21 +133,17 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
                     </div>
                   </td>
                   <td className="px-6 py-5 relative">
-                    <button
+                    <button 
                       onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
                       className="p-2 hover:bg-secondary rounded-lg transition-colors"
                     >
                       <MoreVertical className="w-4 h-4 text-muted-foreground" />
                     </button>
-                    
                     {openMenuId === r.id && (
                       <>
-                        <div 
-                          className="fixed inset-0 z-10" 
-                          onClick={() => setOpenMenuId(null)}
-                        />
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
                         <div className="absolute right-6 top-12 z-20 bg-card border border-border rounded-xl shadow-lg py-2 min-w-[180px] dropdown-enter">
-                          <button
+                          <button 
                             onClick={() => {
                               setOpenMenuId(null);
                               onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);
@@ -156,7 +153,7 @@ const EmployeeAttendance: React.FC<EmployeeAttendanceProps> = ({ user, onCheckIn
                             <AlertCircle className="w-4 h-4 text-warning" />
                             Submit Appeal
                           </button>
-                          <button
+                          <button 
                             onClick={() => {
                               setOpenMenuId(null);
                               onAppeal(r.status === 'Late' ? 'Late' : 'Absent', r.date, r.id);

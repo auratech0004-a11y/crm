@@ -17,6 +17,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if Supabase is properly configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
+        !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+      console.warn('Supabase not configured. Using mock authentication.');
+      setLoading(false);
+      return;
+    }
+
     const checkUser = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -98,6 +109,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (username: string, password: string): Promise<boolean> => {
+    // Check if Supabase is properly configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
+        !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+      // Mock login for development
+      console.warn('Supabase not configured. Using mock login.');
+      setUser({
+        id: 'mock-user-id',
+        name: 'Mock User',
+        username: username,
+        role: 'ADMIN',
+        salary: 50000,
+        designation: 'Developer',
+        joiningDate: '2023-01-01',
+        status: 'active',
+        allowedModules: ['dashboard', 'employees', 'attendance', 'leave', 'fines', 'payroll', 'settings', 'lead', 'appeals']
+      });
+      return true;
+    }
+
     try {
       // First, get the user's email from the employees table
       const { data: employee, error: employeeError } = await supabase
@@ -159,6 +192,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = async () => {
+    // Check if Supabase is properly configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || supabaseUrl === 'https://your-project.supabase.co' || 
+        !supabaseAnonKey || supabaseAnonKey === 'your-anon-key-here') {
+      // Mock logout for development
+      console.warn('Supabase not configured. Using mock logout.');
+      setUser(null);
+      return;
+    }
+
     try {
       await supabase.auth.signOut();
       setUser(null);

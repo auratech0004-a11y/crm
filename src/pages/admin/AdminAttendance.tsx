@@ -17,7 +17,6 @@ const AdminAttendance: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground">Attendance</h1>
         <p className="text-muted-foreground mt-1">Real-time attendance of all employees</p>
       </div>
-
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -48,9 +47,7 @@ const AdminAttendance: React.FC = () => {
                     </td>
                     <td className="px-8 py-6">
                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                        record 
-                          ? 'bg-success/10 text-success border-success/30' 
-                          : 'bg-destructive/10 text-destructive border-destructive/30'
+                        record ? 'bg-success/10 text-success border-success/30' : 'bg-destructive/10 text-destructive border-destructive/30'
                       }`}>
                         {record ? 'Present' : 'Absent'}
                       </span>

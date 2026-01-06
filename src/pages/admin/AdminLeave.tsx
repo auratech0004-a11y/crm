@@ -9,15 +9,17 @@ const AdminLeave: React.FC = () => {
   const [leaves, setLeaves] = useState<Leave[]>([]);
 
   useEffect(() => {
-    (async () => {
-      await fetchLeaves();
-      setLeaves(storage.getLeaves());
-    })();
+    loadLeaves();
   }, []);
+
+  const loadLeaves = () => {
+    const allLeaves = storage.getLeaves();
+    setLeaves(allLeaves);
+  };
 
   const handleAction = async (leaveId: string, status: 'Approved' | 'Rejected') => {
     await updateLeaveStatus(leaveId, status);
-    setLeaves(storage.getLeaves());
+    loadLeaves();
     storage.addLog('Leave', `Leave request ${status.toLowerCase()}`, 'Admin');
     toast.success(`Leave request ${status.toLowerCase()}`);
   };
@@ -31,7 +33,6 @@ const AdminLeave: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground">Leave Management</h1>
         <p className="text-muted-foreground mt-1">Review and approve employee leave requests</p>
       </div>
-
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
         <div className="p-6 border-b border-border bg-secondary/30">
           <h3 className="font-bold text-foreground flex items-center gap-2">
@@ -90,7 +91,6 @@ const AdminLeave: React.FC = () => {
           </tbody>
         </table>
       </div>
-
       {history.length > 0 && (
         <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
           <div className="p-6 border-b border-border bg-secondary/30">
@@ -104,9 +104,7 @@ const AdminLeave: React.FC = () => {
                   <p className="text-xs text-muted-foreground">{l.type} • {l.startDate} to {l.endDate}</p>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  l.status === 'Approved' 
-                    ? 'bg-success/10 text-success' 
-                    : 'bg-destructive/10 text-destructive'
+                  l.status === 'Approved' ? 'bg-success/10 text-success' : 'bg-destructive/10 text-destructive'
                 }`}>
                   {l.status}
                 </span>

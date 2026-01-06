@@ -7,16 +7,22 @@ import { toast } from 'sonner';
 
 const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ type: 'Annual', startDate: '', endDate: '', reason: '' });
+  const [formData, setFormData] = useState({
+    type: 'Annual',
+    startDate: '',
+    endDate: '',
+    reason: ''
+  });
   const [leaves, setLeaves] = useState<Leave[]>([]);
 
   useEffect(() => {
-    (async () => {
-      await fetchLeaves();
-      const allLeaves = storage.getLeaves();
-      setLeaves(allLeaves.filter(l => l.employeeId === user.id));
-    })();
+    loadLeaves();
   }, [user.id]);
+
+  const loadLeaves = () => {
+    const allLeaves = storage.getLeaves();
+    setLeaves(allLeaves.filter(l => l.employeeId === user.id));
+  };
 
   const handleApplyLeave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,13 +34,17 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
       status: 'Pending',
       requestDate: new Date().toISOString().split('T')[0]
     };
+    
     await addLeave(newLeave);
-    const allLeaves = storage.getLeaves();
-    setLeaves(allLeaves.filter(l => l.employeeId === user.id));
-
+    loadLeaves();
     storage.addLog('Leave', `Applied for ${formData.type} leave`, user.name);
     setModalOpen(false);
-    setFormData({ type: 'Annual', startDate: '', endDate: '', reason: '' });
+    setFormData({
+      type: 'Annual',
+      startDate: '',
+      endDate: '',
+      reason: ''
+    });
     toast.success('Leave request submitted successfully!');
   };
 
@@ -53,7 +63,6 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
           APPLY LEAVE
         </button>
       </div>
-
       <div className="flex">
         <div className="bg-card border border-border p-6 rounded-3xl flex items-center gap-6 min-w-[240px] shadow-card">
           <div className="w-14 h-14 bg-warning/10 text-warning rounded-2xl flex items-center justify-center text-2xl">
@@ -65,7 +74,6 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
           </div>
         </div>
       </div>
-
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card min-h-[300px]">
         <table className="w-full text-left">
           <thead className="bg-secondary">
@@ -79,7 +87,9 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
           <tbody className="divide-y divide-border">
             {leaves.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-8 py-20 text-center text-muted-foreground font-medium italic">No leave requests found in history</td>
+                <td colSpan={4} className="px-8 py-20 text-center text-muted-foreground font-medium italic">
+                  No leave requests found in history
+                </td>
               </tr>
             ) : (
               leaves.map(l => (
@@ -92,9 +102,11 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
                   <td className="px-8 py-6 text-muted-foreground text-sm italic">"{l.reason}"</td>
                   <td className="px-8 py-6 text-right">
                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border inline-flex items-center gap-1 ${
-                      l.status === 'Pending' ? 'bg-warning/10 text-warning border-warning/20' : 
-                      l.status === 'Approved' ? 'bg-success/10 text-success border-success/20' : 
-                      'bg-destructive/10 text-destructive border-destructive/20'
+                      l.status === 'Pending' 
+                        ? 'bg-warning/10 text-warning border-warning/20' 
+                        : l.status === 'Approved' 
+                          ? 'bg-success/10 text-success border-success/20' 
+                          : 'bg-destructive/10 text-destructive border-destructive/20'
                     }`}>
                       {l.status === 'Pending' && <Clock className="w-3 h-3" />}
                       {l.status === 'Approved' && <CheckCircle className="w-3 h-3" />}
@@ -108,20 +120,22 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
           </tbody>
         </table>
       </div>
-
       {isModalOpen && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
           <div className="bg-card w-full max-w-md rounded-3xl shadow-2xl border border-border animate-scale-in">
             <div className="p-6 border-b border-border flex justify-between items-center">
               <h3 className="text-xl font-black text-foreground">Request Leave</h3>
-              <button onClick={() => setModalOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <button 
+                onClick={() => setModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <form onSubmit={handleApplyLeave} className="p-6 space-y-4">
               <div>
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Leave Type</label>
-                <select 
+                <select
                   className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none focus:border-warning text-foreground"
                   value={formData.type}
                   onChange={e => setFormData({ ...formData, type: e.target.value })}
@@ -135,36 +149,39 @@ const EmployeeLeave: React.FC<{ user: Employee }> = ({ user }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Start Date</label>
-                  <input 
-                    type="date" 
-                    required 
-                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none text-foreground" 
-                    value={formData.startDate} 
-                    onChange={e => setFormData({ ...formData, startDate: e.target.value })} 
+                  <input
+                    type="date"
+                    required
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none text-foreground"
+                    value={formData.startDate}
+                    onChange={e => setFormData({ ...formData, startDate: e.target.value })}
                   />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">End Date</label>
-                  <input 
-                    type="date" 
-                    required 
-                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none text-foreground" 
-                    value={formData.endDate} 
-                    onChange={e => setFormData({ ...formData, endDate: e.target.value })} 
+                  <input
+                    type="date"
+                    required
+                    className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none text-foreground"
+                    value={formData.endDate}
+                    onChange={e => setFormData({ ...formData, endDate: e.target.value })}
                   />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest block mb-2">Reason</label>
-                <textarea 
-                  required 
-                  placeholder="Tell us why..." 
-                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none h-24 resize-none text-foreground" 
-                  value={formData.reason} 
-                  onChange={e => setFormData({ ...formData, reason: e.target.value })} 
+                <textarea
+                  required
+                  placeholder="Tell us why..."
+                  className="w-full bg-secondary border border-border rounded-xl px-4 py-3 outline-none h-24 resize-none text-foreground"
+                  value={formData.reason}
+                  onChange={e => setFormData({ ...formData, reason: e.target.value })}
                 />
               </div>
-              <button type="submit" className="w-full py-4 bg-warning text-warning-foreground font-black rounded-2xl shadow-xl active:scale-95 transition-all">
+              <button 
+                type="submit"
+                className="w-full py-4 bg-warning text-warning-foreground font-black rounded-2xl shadow-xl active:scale-95 transition-all"
+              >
                 SUBMIT REQUEST
               </button>
             </form>

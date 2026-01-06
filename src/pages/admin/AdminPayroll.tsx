@@ -37,8 +37,8 @@ const AdminPayroll: React.FC = () => {
   const employeeAttendanceSummary = useMemo(() => {
     const map: Record<string, { present: number; absent: number }> = {};
     const { start, end } = getMonthRange();
-
     const validDates: Set<string> = new Set();
+    
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       if (!isSunday(d)) {
         const key = d.toISOString().slice(0, 10);
@@ -77,18 +77,18 @@ const AdminPayroll: React.FC = () => {
       'Digital Commerce Probationer',
       'Digital Commerce Associate',
     ];
-
-    const designation = allowedDesignations.includes(emp.designation)
-      ? emp.designation
+    const designation = allowedDesignations.includes(emp.designation) 
+      ? emp.designation 
       : 'Digital Commerce Trainee';
-
+    
     const basic = emp.salary || 0;
     // Per-day salary = Basic / 26 (rounded as per sample slip)
     const perDay = Math.round(basic / 26);
+    
     const { present, absent } = employeeAttendanceSummary[emp.id] || { present: 0, absent: workingDaysInMonth };
     const deduction = perDay * absent;
     const net = Math.max(basic - deduction, 0);
-
+    
     return {
       designation,
       workingDays: workingDaysInMonth,
@@ -119,7 +119,7 @@ const AdminPayroll: React.FC = () => {
   const downloadSlip = async (emp: Employee) => {
     const month = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
     const calc = computePayroll(emp);
-
+    
     // Lazy-load jsPDF from CDN so no bundler config is required
     const loadJsPDF = (): Promise<any> => {
       return new Promise((resolve, reject) => {
@@ -135,7 +135,6 @@ const AdminPayroll: React.FC = () => {
     try {
       const JS_PDF: any = await loadJsPDF();
       const doc = new JS_PDF({ unit: 'pt', format: 'a4' });
-
       const pad = 40;
       let y = pad;
       const right = 555; // A4 width minus right padding
@@ -163,9 +162,12 @@ const AdminPayroll: React.FC = () => {
       y += 18;
 
       // Employee details
-      drawRow('Employee Name', emp.name, y); y += 18;
-      drawRow('Employee ID', emp.employeeId || emp.id, y); y += 18;
-      drawRow('Designation', calc.designation, y); y += 24;
+      drawRow('Employee Name', emp.name, y);
+      y += 18;
+      drawRow('Employee ID', emp.employeeId || emp.id, y);
+      y += 18;
+      drawRow('Designation', calc.designation, y);
+      y += 24;
 
       // Attendance Section
       doc.setFont('helvetica', 'bold');
@@ -173,9 +175,12 @@ const AdminPayroll: React.FC = () => {
       doc.text('Attendance:', pad, y);
       y += 16;
       doc.setFont('helvetica', 'normal');
-      drawRow('Total Working Days', calc.workingDays, y); y += 18;
-      drawRow('Present Days', calc.present, y); y += 18;
-      drawRow('Absent Days', calc.absent, y); y += 24;
+      drawRow('Total Working Days', calc.workingDays, y);
+      y += 18;
+      drawRow('Present Days', calc.present, y);
+      y += 18;
+      drawRow('Absent Days', calc.absent, y);
+      y += 24;
 
       // Salary details
       doc.setFont('helvetica', 'bold');
@@ -184,9 +189,12 @@ const AdminPayroll: React.FC = () => {
       y += 16;
       doc.setFont('helvetica', 'normal');
       const cur = (n: number) => `₨ ${n.toLocaleString()}`;
-      drawRow('Basic Salary', cur(calc.basic), y); y += 18;
-      drawRow('Per-Day Salary', cur(calc.perDay), y); y += 18;
-      drawRow('Deduction for Absent Days', cur(calc.deduction), y); y += 18;
+      drawRow('Basic Salary', cur(calc.basic), y);
+      y += 18;
+      drawRow('Per-Day Salary', cur(calc.perDay), y);
+      y += 18;
+      drawRow('Deduction for Absent Days', cur(calc.deduction), y);
+      y += 18;
 
       // Net Salary box
       y += 10;
@@ -228,8 +236,8 @@ const AdminPayroll: React.FC = () => {
           <h1 className="text-3xl font-bold text-foreground">Payroll Management</h1>
           <p className="text-muted-foreground mt-1">Process and track monthly salaries</p>
         </div>
-        <button
-          onClick={processPayroll}
+        <button 
+          onClick={processPayroll} 
           disabled={isProcessing}
           className="gradient-primary text-primary-foreground px-6 py-3 rounded-2xl font-bold shadow-lg shadow-primary/20 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
         >
@@ -246,7 +254,6 @@ const AdminPayroll: React.FC = () => {
           )}
         </button>
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-card border border-border p-6 rounded-3xl shadow-card flex items-center gap-4">
           <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center">
@@ -276,7 +283,6 @@ const AdminPayroll: React.FC = () => {
           </div>
         </div>
       </div>
-
       <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
         <table className="w-full text-left">
           <thead className="bg-secondary">
@@ -313,7 +319,10 @@ const AdminPayroll: React.FC = () => {
                     </span>
                   </td>
                   <td className="px-8 py-6 text-right">
-                    <button onClick={() => downloadSlip(emp)} className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20">
+                    <button 
+                      onClick={() => downloadSlip(emp)}
+                      className="p-2 bg-primary/10 text-primary rounded-xl hover:bg-primary/20"
+                    >
                       <Download className="w-4 h-4" />
                     </button>
                   </td>

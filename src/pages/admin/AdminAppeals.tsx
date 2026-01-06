@@ -12,25 +12,29 @@ const AdminAppeals: React.FC = () => {
   const [selectedAppeal, setSelectedAppeal] = useState<Appeal | null>(null);
 
   useEffect(() => {
-    (async () => {
-      await fetchAppeals();
-      setAppeals(storage.getAppeals());
-    })();
+    loadAppeals();
   }, []);
+
+  const loadAppeals = () => {
+    const allAppeals = storage.getAppeals();
+    setAppeals(allAppeals);
+  };
 
   const handleAction = async (appealId: string, status: 'Approved' | 'Rejected') => {
     const allAppeals = storage.getAppeals();
     const appeal = allAppeals.find(a => a.id === appealId);
-
+    
     if (appeal && status === 'Approved') {
       if (appeal.type === 'Absent') {
         await markAttendanceStatus(appeal.employeeId, appeal.date!, { status: 'Present', method: 'Manual', checkIn: '09:00' });
         toast.success(`Attendance marked for ${appeal.employeeName} on ${appeal.date}`);
       }
+      
       if (appeal.type === 'Late') {
         await markAttendanceStatus(appeal.employeeId, appeal.date!, { status: 'Present' });
         toast.success(`Late mark removed for ${appeal.employeeName}`);
       }
+      
       if (appeal.type === 'Fine' && appeal.relatedId) {
         const fines = storage.getFines();
         const updatedFines = fines.filter(f => f.id !== appeal.relatedId);
@@ -38,9 +42,9 @@ const AdminAppeals: React.FC = () => {
         toast.success(`Fine removed for ${appeal.employeeName}`);
       }
     }
-
+    
     await updateAppealStatus(appealId, status);
-    setAppeals(storage.getAppeals());
+    loadAppeals();
     setSelectedAppeal(null);
     storage.addLog('Appeal', `Appeal ${status.toLowerCase()} for ${appeal?.employeeName}`, user?.name || 'Admin');
     if (status === 'Rejected') {
@@ -74,7 +78,6 @@ const AdminAppeals: React.FC = () => {
         <h1 className="text-3xl font-bold text-foreground">Appeals & Grievances</h1>
         <p className="text-muted-foreground mt-1">Handle employee appeals and concerns</p>
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="bg-card border border-border p-6 rounded-3xl shadow-card flex items-center gap-4">
           <div className="w-14 h-14 bg-warning/10 text-warning rounded-2xl flex items-center justify-center">
@@ -104,7 +107,6 @@ const AdminAppeals: React.FC = () => {
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pending Appeals */}
         <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
@@ -158,7 +160,7 @@ const AdminAppeals: React.FC = () => {
             )}
           </div>
         </div>
-
+        
         {/* Appeal Detail / History */}
         <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-card">
           {selectedAppeal ? (
@@ -182,7 +184,6 @@ const AdminAppeals: React.FC = () => {
                     <p className="text-sm text-muted-foreground">Employee</p>
                   </div>
                 </div>
-                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-secondary/50 p-4 rounded-xl">
                     <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Type</p>
@@ -198,12 +199,10 @@ const AdminAppeals: React.FC = () => {
                     </p>
                   </div>
                 </div>
-                
                 <div className="bg-secondary/50 p-4 rounded-xl">
                   <p className="text-xs text-muted-foreground uppercase font-bold mb-2">Reason</p>
                   <p className="font-bold text-foreground">{selectedAppeal.reason}</p>
                 </div>
-                
                 <div className="bg-secondary/50 p-4 rounded-xl">
                   <p className="text-xs text-muted-foreground uppercase font-bold mb-2 flex items-center gap-2">
                     <FileText className="w-4 h-4" />
@@ -211,12 +210,10 @@ const AdminAppeals: React.FC = () => {
                   </p>
                   <p className="text-foreground">{selectedAppeal.message}</p>
                 </div>
-                
                 <div className="bg-secondary/50 p-4 rounded-xl">
                   <p className="text-xs text-muted-foreground uppercase font-bold mb-1">Submitted On</p>
                   <p className="text-foreground">{selectedAppeal.appealDate}</p>
                 </div>
-                
                 {selectedAppeal.status === 'Pending' && (
                   <div className="flex gap-3 pt-4">
                     <button 

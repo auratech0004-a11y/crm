@@ -12,7 +12,6 @@ const EmployeeManagement: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
   const [formData, setFormData] = useState({
     employeeId: '',
     name: '',
@@ -25,14 +24,12 @@ const EmployeeManagement: React.FC = () => {
   });
 
   useEffect(() => {
-    (async () => {
-      await fetchEmployees();
-      loadEmployees();
-    })();
+    loadEmployees();
   }, []);
 
   const loadEmployees = () => {
-    setEmployees(storage.getEmployees().filter(e => e.role === 'EMPLOYEE'));
+    const emps = storage.getEmployees();
+    setEmployees(emps.filter(e => e.role === 'EMPLOYEE'));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,12 +61,12 @@ const EmployeeManagement: React.FC = () => {
         return;
       }
     }
-    
+
     if (editingEmployee) {
-      const updatedEmp: Employee = { 
-        ...editingEmployee, 
+      const updatedEmp: Employee = {
+        ...editingEmployee,
         ...formData,
-        password: formData.password || editingEmployee.password 
+        password: formData.password || editingEmployee.password
       } as Employee;
       await upsertEmployee(updatedEmp);
       storage.addLog('Update', `Employee ${updatedEmp.name} was updated`, user?.name || 'Admin');
@@ -109,7 +106,16 @@ const EmployeeManagement: React.FC = () => {
   };
 
   const resetForm = () => {
-    setFormData({ employeeId: '', name: '', username: '', password: '', designation: '', salary: 0, role: 'EMPLOYEE', profilePic: '' });
+    setFormData({
+      employeeId: '',
+      name: '',
+      username: '',
+      password: '',
+      designation: '',
+      salary: 0,
+      role: 'EMPLOYEE',
+      profilePic: ''
+    });
     setEditingEmployee(null);
   };
 
@@ -143,7 +149,6 @@ const EmployeeManagement: React.FC = () => {
           <span className="hidden sm:inline">Add Employee</span>
         </button>
       </div>
-
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {employees.map(emp => (
           <div key={emp.id} className="bg-card rounded-3xl border border-border p-5 shadow-card hover:shadow-lg transition-shadow relative group">
@@ -166,15 +171,20 @@ const EmployeeManagement: React.FC = () => {
                 )}
               </div>
               <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => openEdit(emp)} className="p-2 bg-primary/10 text-primary rounded-lg text-sm hover:bg-primary/20">
+                <button 
+                  onClick={() => openEdit(emp)}
+                  className="p-2 bg-primary/10 text-primary rounded-lg text-sm hover:bg-primary/20"
+                >
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(emp.id, emp.name)} className="p-2 bg-destructive/10 text-destructive rounded-lg text-sm hover:bg-destructive/20">
+                <button 
+                  onClick={() => handleDelete(emp.id, emp.name)}
+                  className="p-2 bg-destructive/10 text-destructive rounded-lg text-sm hover:bg-destructive/20"
+                >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            
             <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-border text-sm">
               <div>
                 <p className="text-muted-foreground">Salary</p>
@@ -194,7 +204,6 @@ const EmployeeManagement: React.FC = () => {
           </div>
         )}
       </div>
-
       {isModalOpen && (
         <div className="fixed inset-0 bg-foreground/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-card w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl animate-scale-in border border-border">
@@ -202,7 +211,10 @@ const EmployeeManagement: React.FC = () => {
               <h3 className="text-xl font-bold text-foreground">
                 {editingEmployee ? 'Edit Employee' : 'Add New Employee'}
               </h3>
-              <button onClick={() => setModalOpen(false)} className="text-muted-foreground hover:text-foreground">
+              <button 
+                onClick={() => setModalOpen(false)}
+                className="text-muted-foreground hover:text-foreground"
+              >
                 <X className="w-6 h-6" />
               </button>
             </div>
@@ -225,19 +237,20 @@ const EmployeeManagement: React.FC = () => {
                     <Camera className="w-6 h-6 text-primary-foreground" />
                   </div>
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
+                <input 
+                  ref={fileInputRef} 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageChange} 
+                  className="hidden" 
                 />
               </div>
-
+              
               {/* Employee ID */}
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase flex items-center gap-1">
-                  <IdCard className="w-3 h-3" /> Employee ID
+                  <IdCard className="w-3 h-3" />
+                  Employee ID
                 </label>
                 <input
                   className="w-full px-4 py-3 bg-secondary border-0 rounded-xl focus:ring-2 focus:ring-primary outline-none text-foreground"
@@ -246,7 +259,7 @@ const EmployeeManagement: React.FC = () => {
                   placeholder="e.g., EMP-001"
                 />
               </div>
-
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Full Name</label>
@@ -267,7 +280,7 @@ const EmployeeManagement: React.FC = () => {
                   />
                 </div>
               </div>
-
+              
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Password</label>
                 <input
@@ -279,7 +292,7 @@ const EmployeeManagement: React.FC = () => {
                   placeholder={editingEmployee ? 'Leave empty to keep current' : ''}
                 />
               </div>
-
+              
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Designation</label>
                 <input
@@ -289,7 +302,7 @@ const EmployeeManagement: React.FC = () => {
                   onChange={e => setFormData({...formData, designation: e.target.value})}
                 />
               </div>
-
+              
               <div>
                 <label className="block text-xs font-bold text-muted-foreground mb-1 uppercase">Salary (PKR)</label>
                 <input
@@ -300,12 +313,19 @@ const EmployeeManagement: React.FC = () => {
                   onChange={e => setFormData({...formData, salary: parseInt(e.target.value) || 0})}
                 />
               </div>
-
+              
               <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-3.5 font-bold text-muted-foreground border border-border rounded-xl hover:bg-secondary">
+                <button 
+                  type="button" 
+                  onClick={() => setModalOpen(false)}
+                  className="flex-1 py-3.5 font-bold text-muted-foreground border border-border rounded-xl hover:bg-secondary"
+                >
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 py-3.5 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20">
+                <button 
+                  type="submit"
+                  className="flex-1 py-3.5 gradient-primary text-primary-foreground font-bold rounded-xl shadow-lg shadow-primary/20"
+                >
                   {editingEmployee ? 'Save Changes' : 'Create Account'}
                 </button>
               </div>

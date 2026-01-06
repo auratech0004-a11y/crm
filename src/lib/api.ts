@@ -65,7 +65,7 @@ export const employeeAPI = {
     } : null;
   },
   create: async (employee: Omit<Employee, 'id'>) => {
-    const { data, error } = await supabase.from('employees').insert({
+    const { data, error } = await supabase.from('employees').insert([{
       employee_id: employee.employeeId,
       name: employee.name,
       username: employee.username,
@@ -80,7 +80,7 @@ export const employeeAPI = {
       email: employee.email,
       address: employee.address,
       lead_id: employee.leadId
-    }).select();
+    }]).select();
     
     if (error) throw error;
     return data[0];
@@ -131,7 +131,7 @@ export const attendanceAPI = {
     }));
   },
   create: async (attendance: Omit<Attendance, 'id'>) => {
-    const { data, error } = await supabase.from('attendance').insert({
+    const { data, error } = await supabase.from('attendance').insert([{
       employee_id: attendance.employeeId,
       date: attendance.date,
       check_in: attendance.checkIn,
@@ -139,7 +139,7 @@ export const attendanceAPI = {
       status: attendance.status,
       method: attendance.method,
       location: attendance.location
-    }).select();
+    }]).select();
     
     if (error) throw error;
     return data[0];
@@ -175,7 +175,7 @@ export const leaveAPI = {
     }));
   },
   create: async (leave: Omit<Leave, 'id'>) => {
-    const { data, error } = await supabase.from('leaves').insert({
+    const { data, error } = await supabase.from('leaves').insert([{
       employee_id: leave.employeeId,
       employee_name: leave.employeeName,
       type: leave.type,
@@ -184,7 +184,7 @@ export const leaveAPI = {
       reason: leave.reason,
       status: leave.status,
       request_date: leave.requestDate
-    }).select();
+    }]).select();
     
     if (error) throw error;
     return data[0];
@@ -215,13 +215,13 @@ export const fineAPI = {
     }));
   },
   create: async (fine: Omit<Fine, 'id'>) => {
-    const { data, error } = await supabase.from('fines').insert({
+    const { data, error } = await supabase.from('fines').insert([{
       employee_id: fine.employeeId,
       amount: fine.amount,
       reason: fine.reason,
       date: fine.date,
       status: fine.status
-    }).select();
+    }]).select();
     
     if (error) throw error;
     return data[0];
@@ -256,7 +256,7 @@ export const appealAPI = {
     }));
   },
   create: async (appeal: Omit<Appeal, 'id'>) => {
-    const { data, error } = await supabase.from('appeals').insert({
+    const { data, error } = await supabase.from('appeals').insert([{
       employee_id: appeal.employeeId,
       employee_name: appeal.employeeName,
       type: appeal.type,
@@ -266,7 +266,7 @@ export const appealAPI = {
       date: appeal.date,
       appeal_date: appeal.appealDate,
       related_id: appeal.relatedId
-    }).select();
+    }]).select();
     
     if (error) throw error;
     return data[0];

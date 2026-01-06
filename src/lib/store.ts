@@ -1,147 +1,199 @@
+import { supabase } from '@/lib/supabaseClient';
 import { Employee, Attendance, Fine, AuditLog, Leave, Appeal } from '@/types';
 
-const STORAGE_KEYS = {
-  EMPLOYEES: 'hrms_employees',
-  ATTENDANCE: 'hrms_attendance',
-  FINES: 'hrms_fines',
-  LOGS: 'hrms_logs',
-  SESSION: 'hrms_session',
-  LEAVES: 'hrms_leaves',
-  PAYROLL_STATUS: 'hrms_payroll_status',
-  APPEALS: 'hrms_appeals',
-  THEME: 'hrms_theme'
-};
-
-const INITIAL_EMPLOYEES: Employee[] = [
-  {
-    id: 'admin-1',
-    name: 'A.R HR Admin',
-    username: 'admin',
-    password: '123',
-    role: 'ADMIN',
-    salary: 0,
-    designation: 'Super Admin',
-    joiningDate: '2023-01-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'employees', 'payroll', 'attendance', 'reports', 'logs', 'permissions']
-  },
-  {
-    id: 'emp-1',
-    name: 'Babar Azam',
-    username: 'babar',
-    password: '12345678',
-    role: 'EMPLOYEE',
-    salary: 45000,
-    designation: 'Graphic Designer',
-    joiningDate: '2024-01-15',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'payroll', 'expense']
-  },
-  {
-    id: 'emp-2',
-    name: 'Sara Ahmed',
-    username: 'sara',
-    password: '12345678',
-    role: 'EMPLOYEE',
-    salary: 55000,
-    designation: 'UI/UX Designer',
-    joiningDate: '2024-02-01',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'payroll']
-  },
-  {
-    id: 'emp-3',
-    name: 'Ali Khan',
-    username: 'ali',
-    password: '12345678',
-    role: 'EMPLOYEE',
-    salary: 60000,
-    designation: 'Full Stack Developer',
-    joiningDate: '2023-06-10',
-    status: 'active',
-    allowedModules: ['dashboard', 'attendance', 'leave', 'payroll']
-  }
-];
-
 export const storage = {
-  getEmployees: (): Employee[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.EMPLOYEES);
-    return data ? JSON.parse(data) : INITIAL_EMPLOYEES;
-  },
-  setEmployees: (employees: Employee[]) => {
-    localStorage.setItem(STORAGE_KEYS.EMPLOYEES, JSON.stringify(employees));
-  },
-  getAttendance: (): Attendance[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
-    return data ? JSON.parse(data) : [];
-  },
-  setAttendance: (attendance: Attendance[]) => {
-    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendance));
-  },
-  getFines: (): Fine[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.FINES);
-    return data ? JSON.parse(data) : [];
-  },
-  setFines: (fines: Fine[]) => {
-    localStorage.setItem(STORAGE_KEYS.FINES, JSON.stringify(fines));
-  },
-  getLeaves: (): Leave[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.LEAVES);
-    return data ? JSON.parse(data) : [];
-  },
-  setLeaves: (leaves: Leave[]) => {
-    localStorage.setItem(STORAGE_KEYS.LEAVES, JSON.stringify(leaves));
-  },
-  getAppeals: (): Appeal[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.APPEALS);
-    return data ? JSON.parse(data) : [];
-  },
-  setAppeals: (appeals: Appeal[]) => {
-    localStorage.setItem(STORAGE_KEYS.APPEALS, JSON.stringify(appeals));
-  },
-  getPayrollStatus: (): Record<string, string> => {
-    const data = localStorage.getItem(STORAGE_KEYS.PAYROLL_STATUS);
-    return data ? JSON.parse(data) : {};
-  },
-  setPayrollStatus: (status: Record<string, string>) => {
-    localStorage.setItem(STORAGE_KEYS.PAYROLL_STATUS, JSON.stringify(status));
-  },
-  getLogs: (): AuditLog[] => {
-    const data = localStorage.getItem(STORAGE_KEYS.LOGS);
-    return data ? JSON.parse(data) : [];
-  },
-  setLogs: (logs: AuditLog[]) => {
-    localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(logs));
-  },
-  addLog: (action: string, details: string, user: string) => {
-    const logs = storage.getLogs();
-    const newLog: AuditLog = {
-      id: Math.random().toString(36).substr(2, 9),
-      action,
-      details,
-      user,
-      timestamp: new Date().toISOString()
-    };
-    storage.setLogs([newLog, ...logs].slice(0, 100));
-  },
-  getSession: () => {
-    const data = localStorage.getItem(STORAGE_KEYS.SESSION);
-    return data ? JSON.parse(data) : null;
-  },
-  setSession: (user: Employee | null) => {
-    if (user) {
-      localStorage.setItem(STORAGE_KEYS.SESSION, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.SESSION);
+  // Employees
+  getEmployees: async (): Promise<Employee[]> => {
+    try {
+      const { data, error } = await supabase.from('employees').select('*');
+      if (error) throw error;
+      
+      return data.map((emp: any) => ({
+        id: emp.id,
+        employeeId: emp.employee_id,
+        name: emp.name,
+        username: emp.username,
+        role: emp.role,
+        salary: emp.salary,
+        designation: emp.designation,
+        joiningDate: emp.joining_date,
+        status: emp.status,
+        allowedModules: emp.allowed_modules,
+        profilePic: emp.profile_pic,
+        phone: emp.phone,
+        email: emp.email,
+        address: emp.address,
+        leadId: emp.lead_id
+      }));
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      return [];
     }
   },
-  clearSession: () => {
-    localStorage.removeItem(STORAGE_KEYS.SESSION);
+
+  // Attendance
+  getAttendance: async (): Promise<Attendance[]> => {
+    try {
+      const { data, error } = await supabase.from('attendance').select('*');
+      if (error) throw error;
+      
+      return data.map((att: any) => ({
+        id: att.id,
+        employeeId: att.employee_id,
+        date: att.date,
+        checkIn: att.check_in,
+        checkOut: att.check_out,
+        status: att.status,
+        method: att.method,
+        location: att.location
+      }));
+    } catch (error) {
+      console.error('Error fetching attendance:', error);
+      return [];
+    }
   },
-  getTheme: (): 'light' | 'dark' => {
-    return (localStorage.getItem(STORAGE_KEYS.THEME) as 'light' | 'dark') || 'dark';
+
+  addAttendance: async (attendance: Attendance): Promise<boolean> => {
+    try {
+      const { error } = await supabase.from('attendance').insert({
+        id: attendance.id,
+        employee_id: attendance.employeeId,
+        date: attendance.date,
+        check_in: attendance.checkIn,
+        check_out: attendance.checkOut,
+        status: attendance.status,
+        method: attendance.method,
+        location: attendance.location
+      });
+      
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error adding attendance:', error);
+      return false;
+    }
   },
-  setTheme: (theme: 'light' | 'dark') => {
-    localStorage.setItem(STORAGE_KEYS.THEME, theme);
+
+  // Fines
+  getFines: async (): Promise<Fine[]> => {
+    try {
+      const { data, error } = await supabase.from('fines').select('*');
+      if (error) throw error;
+      
+      return data.map((fine: any) => ({
+        id: fine.id,
+        employeeId: fine.employee_id,
+        amount: fine.amount,
+        reason: fine.reason,
+        date: fine.date,
+        status: fine.status
+      }));
+    } catch (error) {
+      console.error('Error fetching fines:', error);
+      return [];
+    }
+  },
+
+  // Leaves
+  getLeaves: async (): Promise<Leave[]> => {
+    try {
+      const { data, error } = await supabase.from('leaves').select('*');
+      if (error) throw error;
+      
+      return data.map((leave: any) => ({
+        id: leave.id,
+        employeeId: leave.employee_id,
+        employeeName: leave.employee_name,
+        type: leave.type,
+        startDate: leave.start_date,
+        endDate: leave.end_date,
+        reason: leave.reason,
+        status: leave.status,
+        requestDate: leave.request_date
+      }));
+    } catch (error) {
+      console.error('Error fetching leaves:', error);
+      return [];
+    }
+  },
+
+  // Appeals
+  getAppeals: async (): Promise<Appeal[]> => {
+    try {
+      const { data, error } = await supabase.from('appeals').select('*');
+      if (error) throw error;
+      
+      return data.map((appeal: any) => ({
+        id: appeal.id,
+        employeeId: appeal.employee_id,
+        employeeName: appeal.employee_name,
+        type: appeal.type,
+        reason: appeal.reason,
+        message: appeal.message,
+        status: appeal.status,
+        date: appeal.date,
+        appealDate: appeal.appeal_date,
+        relatedId: appeal.related_id
+      }));
+    } catch (error) {
+      console.error('Error fetching appeals:', error);
+      return [];
+    }
+  },
+
+  // Audit Logs
+  addLog: async (action: string, details: string, user: string): Promise<void> => {
+    try {
+      await supabase.from('audit_logs').insert({
+        id: Math.random().toString(36).substr(2, 9),
+        action,
+        details,
+        user,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error adding log:', error);
+    }
+  },
+
+  getLogs: async (): Promise<AuditLog[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(100);
+        
+      if (error) throw error;
+      
+      return data.map((log: any) => ({
+        id: log.id,
+        action: log.action,
+        details: log.details,
+        user: log.user,
+        timestamp: log.timestamp
+      }));
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      return [];
+    }
+  },
+
+  // Payroll Status
+  getPayrollStatus: async (): Promise<Record<string, string>> => {
+    try {
+      const { data, error } = await supabase.from('payroll_status').select('*');
+      if (error) throw error;
+      
+      const status: Record<string, string> = {};
+      data.forEach((item: any) => {
+        status[item.employee_id] = item.status;
+      });
+      
+      return status;
+    } catch (error) {
+      console.error('Error fetching payroll status:', error);
+      return {};
+    }
   }
 };

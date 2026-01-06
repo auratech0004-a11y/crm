@@ -45,7 +45,7 @@ let mockEmployees: Employee[] = [
   {
     id: 'emp-2',
     employeeId: 'AT-0002',
-    name: 'Atif Shehrbano',
+    name: 'Shehrbano',
     username: 'AT-0002',
     password: 'AT-0002',
     role: 'EMPLOYEE',
@@ -56,7 +56,7 @@ let mockEmployees: Employee[] = [
     allowedModules: ['dashboard', 'attendance', 'leave', 'fines', 'salary'],
     profilePic: '',
     phone: '0301-2345678',
-    email: 'atif.shehrbano@arhr.com',
+    email: 'shehrbano@arhr.com',
     address: '',
     leadId: null
   },

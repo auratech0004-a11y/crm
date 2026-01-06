@@ -79,8 +79,10 @@ const LoginPage: React.FC = () => {
           <div className="text-center text-sm text-muted-foreground">
             <p>Demo accounts:</p>
             <p className="mt-1"><strong>Admin:</strong> admin / admin</p>
-            <p><strong>Employee:</strong> babar / babar</p>
-            <p><strong>Employee:</strong> sara / sara</p>
+            <p><strong>Employee:</strong> naveed / naveed</p>
+            <p><strong>Employee:</strong> zeeshan / zeeshan</p>
+            <p><strong>Employee:</strong> usman / usman</p>
+            <p className="mt-1 text-xs">(And 7 more employees with username/password same as username)</p>
           </div>
         </form>
       </div>
